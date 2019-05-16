@@ -1,0 +1,39 @@
+name: PlaceItemsOnGroundRebuilt
+version: 1.0.0b
+api-version: 1.13
+author: Allogeneous
+main: me.Allogeneous.PlaceItemsOnGroundRebuilt.PlaceItemsMain
+
+commands:
+    placeitems:
+        description: Allows use of /placeitems
+        usage: "/placeitems"
+    
+permissions:
+    placeitems.help:
+        description: Allows usage of /placeitems help to see help list 
+        default: true
+    placeitems.toggle:
+        description: Allows usage of /placeitems toggle
+        default: true
+    placeitems.place:
+        description: Allows user to place items on the ground
+        default: true
+    placeitems.take:
+        description: Allows user to pick items up off the ground
+        default: true
+    placeitems.set:
+        description: Allows user to set placement cap on other players with /placeitems set
+        default: op
+    placeitems.clear:
+        description: Allows user to clear placed items up to 250 blocks away with /placeitems clear
+        default: op
+    placeitems.reload:
+        description: Allows user to reload the config file using /placeitems reload
+        default: op
+    placeitems.configname:
+        description: Allows user to get the name of the item in their hand to put into config file lists using /placeitems configname
+        default: op
+    placeitems.purge:
+        description: Allows user to purge placed items up to 250 blocks away with /placeitems purge
+        default: op
