@@ -26,9 +26,11 @@ import net.md_5.bungee.api.ChatColor;
 public class PlaceItemsEvents implements Listener{
 	
 	private PlaceItemsManager manager;
+	private PlaceItemsVersionSensativeMethods versionHandler;
 	
-	public PlaceItemsEvents(PlaceItemsManager manager){
+	public PlaceItemsEvents(PlaceItemsManager manager, PlaceItemsVersionSensativeMethods versionHandler){
 		this.manager = manager;
+		this.versionHandler = versionHandler;
 	}
 	
 	@EventHandler
@@ -73,7 +75,7 @@ public class PlaceItemsEvents implements Listener{
 				}
 				
 				if(PlaceItemsUtils.isSlab(e.getClickedBlock().getType()) || PlaceItemsUtils.isStairs(e.getClickedBlock().getType())) {
-					if(!isValidSlabOrStair(e.getClickedBlock())) {
+					if(!versionHandler.isValidSlabOrStair(e.getClickedBlock())) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
 						return;
 					}
@@ -91,9 +93,11 @@ public class PlaceItemsEvents implements Listener{
 						return;
 					}
 				}else {
-					if(PlaceItemsConfig.getDefaultPlaceCap() <= manager.getPlacements(p)){
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
-						return;
+					if(PlaceItemsConfig.getDefaultPlaceCap() != PlaceItemsManager.UNLIMITED) {
+						if(PlaceItemsConfig.getDefaultPlaceCap() <= manager.getPlacements(p)){
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+							return;
+						}
 					}
 				}
 				
@@ -111,11 +115,15 @@ public class PlaceItemsEvents implements Listener{
 				a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
 				a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPos(p.getEyeLocation()));
 				manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
-				p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+				if(p.getInventory().getItemInMainHand().getAmount() == 1) {
+					p.getInventory().setItemInMainHand(null);
+				}else {
+					p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+				}
 				updateArea(e.getClickedBlock().getLocation().clone().add(0.0, 2.0, 0.0));
 				manager.setPlacements(p, manager.getPlacements(p) + 1);
 				p.updateInventory();
-			}else if(isItemey(p.getInventory().getItemInMainHand())){
+			}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
 				ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), e.getClickedBlock().getLocation()), EntityType.ARMOR_STAND);
 				
 				a.setVisible(false);
@@ -126,6 +134,11 @@ public class PlaceItemsEvents implements Listener{
 				a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
 				manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
 				p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+				if(p.getInventory().getItemInMainHand().getAmount() == 1) {
+					p.getInventory().setItemInMainHand(null);
+				}else {
+					p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+				}
 				updateArea(e.getClickedBlock().getLocation().clone().add(0.0, 2.0, 0.0));
 				manager.setPlacements(p, manager.getPlacements(p) + 1);
 				p.updateInventory();
@@ -143,14 +156,7 @@ public class PlaceItemsEvents implements Listener{
 	
 	}
 	
-	private boolean isValidSlabOrStair(Block block) {
-		if(PlaceItemsUtils.isStairs(block.getType())) {
-			return block.getBlockData().getAsString().contains("half=top");
-		}else if(PlaceItemsUtils.isSlab(block.getType())){
-			return block.getBlockData().getAsString().contains("type=top") || block.getBlockData().getAsString().contains("type=double");
-		}
-		return false;
-	}
+	
 	
 	private boolean isValidPlace(Material type) {
 		if(!PlaceItemsUtils.isBlackListedPlaceItem(type)) {
@@ -173,18 +179,6 @@ public class PlaceItemsEvents implements Listener{
 		return false;
 	}
 
-	
-	private boolean isItemey(ItemStack item){
-		if(!PlaceItemsUtils.isBlacklisted(item.getType())){
-			if(item.getType().isItem()){
-				return true;
-			}
-			if(PlaceItemsUtils.isItemLikeBlock(item.getType())){
-				return true;
-			}
-		}
-		return false;
-	}
 	
 	@EventHandler
 	public void onPlayerTakeClick(PlayerInteractAtEntityEvent e){

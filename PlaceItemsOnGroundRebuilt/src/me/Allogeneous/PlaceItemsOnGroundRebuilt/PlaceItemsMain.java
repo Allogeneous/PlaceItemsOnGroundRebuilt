@@ -12,16 +12,18 @@ public class PlaceItemsMain extends JavaPlugin{
 
 	private PlaceItemsManager manager;
 	private PlaceItemsLocationAutoSaver autoSaver;
+	private PlaceItemsVersionSensativeMethods versionHandler;
 	
 	@Override
 	public void onEnable(){
+		versionHandler = new PlaceItemsVersionSensativeMethods(Bukkit.getBukkitVersion()); 
 		createConfig();
 		verifyConfigVersion();
 		loadConfig();
 		
 		
 		manager = new PlaceItemsManager(this);
-		Bukkit.getPluginManager().registerEvents(new PlaceItemsEvents(manager), this);
+		Bukkit.getPluginManager().registerEvents(new PlaceItemsEvents(manager, versionHandler), this);
 		this.getCommand("placeitems").setExecutor(new PlaceItemsCommands(this, manager));
 		this.getCommand("placeitems").setTabCompleter(new PlaceItemsTabCompleter());
 		if(PlaceItemsConfig.useLocationAutoSave()){
@@ -32,6 +34,9 @@ public class PlaceItemsMain extends JavaPlugin{
 			}
 			autoSaver.runTaskTimerAsynchronously(this, time * 1200, time * 1200);
 		}
+		
+		PlaceItemsUpdateChecker updateChecker = new PlaceItemsUpdateChecker(this, this.getDescription().getVersion());
+		updateChecker.runTaskTimerAsynchronously(this, 0, 60 * 1200);
 
 	}
 	
@@ -61,7 +66,7 @@ public class PlaceItemsMain extends JavaPlugin{
 			autoSaver.cancel();
 		}
 		
-		getLogger().info("config file reloaded!");
+		getLogger().info("Config file reloaded!");
 	}
 	
 	private void loadConfig(){
@@ -70,26 +75,62 @@ public class PlaceItemsMain extends JavaPlugin{
 		PlaceItemsConfig.setDefaultPlaceCap(getConfig().getInt("defaultPlaceCap", 10));
 		PlaceItemsConfig.setIncludeSlabs(getConfig().getBoolean("includeSlabs", false));
 		PlaceItemsConfig.setIncludeStairs(getConfig().getBoolean("includeStairs", false));
-		String[] blackListString = getConfig().getString("blacklistedItems").split(", ");
-		PlaceItemsConfig.setBlackListedItems(new ArrayList<>(Arrays.asList(blackListString)));
-		String[] stairs = getConfig().getString("stairs").split(", ");
-		PlaceItemsConfig.setStairs(new ArrayList<>(Arrays.asList(stairs)));
-		String[] slabs = getConfig().getString("slabs").split(", ");
-		PlaceItemsConfig.setSlabs(new ArrayList<>(Arrays.asList(slabs)));
-		String[] blackListPlaceString = getConfig().getString("blacklistedPlaceItems").split(", ");
-		PlaceItemsConfig.setBlackListedPlaceItems(new ArrayList<>(Arrays.asList(blackListPlaceString)));
-		if(PlaceItemsConfig.isIncludeSlabs()) {
-			PlaceItemsConfig.getBlackListedPlaceItems().addAll(PlaceItemsConfig.getSlabs());
+		PlaceItemsConfig.setForceLegacy(getConfig().getBoolean("forceLegacy", true));
+		
+		if(versionHandler.isLegacy() && PlaceItemsConfig.isForceLegacy()) {
+			getLogger().info("Legacy server version detected... loading proper config lists.");
+			String[] blackListString = getConfig().getString("legacyBlacklistedItems").split(", ");
+			PlaceItemsConfig.setBlackListedItems(new ArrayList<>(Arrays.asList(blackListString)));
+			String[] stairs = getConfig().getString("legacyStairs").split(", ");
+			PlaceItemsConfig.setStairs(new ArrayList<>(Arrays.asList(stairs)));
+			String[] slabs = getConfig().getString("legacySlabs").split(", ");
+			PlaceItemsConfig.setSlabs(new ArrayList<>(Arrays.asList(slabs)));
+			String[] doubleSlabs = getConfig().getString("legacyDoubleSlabs").split(", ");
+			PlaceItemsConfig.setLegacyDoubleSlabs(new ArrayList<>(Arrays.asList(doubleSlabs)));
+			String[] blackListPlaceString = getConfig().getString("legacyBlacklistedPlaceItems").split(", ");
+			PlaceItemsConfig.setBlackListedPlaceItems(new ArrayList<>(Arrays.asList(blackListPlaceString)));
+			if(PlaceItemsConfig.isIncludeSlabs()) {
+				PlaceItemsConfig.getBlackListedPlaceItems().addAll(PlaceItemsConfig.getSlabs());
+				PlaceItemsConfig.getBlackListedPlaceItems().addAll(PlaceItemsConfig.getLegacyDoubleSlabs());
+			}
+			if(PlaceItemsConfig.isIncludeStairs()) {
+				PlaceItemsConfig.getBlackListedPlaceItems().addAll(PlaceItemsConfig.getStairs());
+			}
+			String[] itemLikeString = getConfig().getString("legacyItemLikeBlocks").split(", ");
+			PlaceItemsConfig.setItemLikeBlocks(new ArrayList<>(Arrays.asList(itemLikeString)));
+			String[] blockLikeString = getConfig().getString("legacyBlockLikeItems").split(", ");
+			PlaceItemsConfig.setBlockLikeItems(new ArrayList<>(Arrays.asList(blockLikeString)));
+			String[] placeIn = getConfig().getString("placeIn").split(", ");
+			PlaceItemsConfig.setPlaceIn(new ArrayList<>(Arrays.asList(placeIn)));
+		}else {
+			
+			if(versionHandler.isLegacy() && !PlaceItemsConfig.isForceLegacy()) {
+				getLogger().warning("Legacy server version detected... legacy lists are bypassed!");
+			}
+			
+			String[] blackListString = getConfig().getString("blacklistedItems").split(", ");
+			PlaceItemsConfig.setBlackListedItems(new ArrayList<>(Arrays.asList(blackListString)));
+			String[] stairs = getConfig().getString("stairs").split(", ");
+			PlaceItemsConfig.setStairs(new ArrayList<>(Arrays.asList(stairs)));
+			String[] slabs = getConfig().getString("slabs").split(", ");
+			PlaceItemsConfig.setSlabs(new ArrayList<>(Arrays.asList(slabs)));
+			String[] blackListPlaceString = getConfig().getString("blacklistedPlaceItems").split(", ");
+			PlaceItemsConfig.setBlackListedPlaceItems(new ArrayList<>(Arrays.asList(blackListPlaceString)));
+			if(PlaceItemsConfig.isIncludeSlabs()) {
+				PlaceItemsConfig.getBlackListedPlaceItems().addAll(PlaceItemsConfig.getSlabs());
+			}
+			if(PlaceItemsConfig.isIncludeStairs()) {
+				PlaceItemsConfig.getBlackListedPlaceItems().addAll(PlaceItemsConfig.getStairs());
+			}
+			String[] itemLikeString = getConfig().getString("itemLikeBlocks").split(", ");
+			PlaceItemsConfig.setItemLikeBlocks(new ArrayList<>(Arrays.asList(itemLikeString)));
+			String[] blockLikeString = getConfig().getString("blockLikeItems").split(", ");
+			PlaceItemsConfig.setBlockLikeItems(new ArrayList<>(Arrays.asList(blockLikeString)));
+			String[] placeIn = getConfig().getString("placeIn").split(", ");
+			PlaceItemsConfig.setPlaceIn(new ArrayList<>(Arrays.asList(placeIn)));
 		}
-		if(PlaceItemsConfig.isIncludeStairs()) {
-			PlaceItemsConfig.getBlackListedPlaceItems().addAll(PlaceItemsConfig.getStairs());
-		}
-		String[] itemLikeString = getConfig().getString("itemLikeBlocks").split(", ");
-		PlaceItemsConfig.setItemLikeBlocks(new ArrayList<>(Arrays.asList(itemLikeString)));
-		String[] blockLikeString = getConfig().getString("blockLikeItems").split(", ");
-		PlaceItemsConfig.setBlockLikeItems(new ArrayList<>(Arrays.asList(blockLikeString)));
-		String[] placeIn = getConfig().getString("placeIn").split(", ");
-		PlaceItemsConfig.setPlaceIn(new ArrayList<>(Arrays.asList(placeIn)));
+		
+		
 	}
 	
 	private void createConfig(){
@@ -108,7 +149,7 @@ public class PlaceItemsMain extends JavaPlugin{
 	}
 	
 	private void verifyConfigVersion(){
-		if(getConfig().getInt("configVersion", 0) != 1){
+		if(getConfig().getInt("configVersion", 0) != 2){
 			getLogger().info("Invalid config file found, creating a new one and copying the old one...");
 			try{
 			      File file = new File(getDataFolder(), "config.yml");

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class PlaceItemsConfig {
 	
 	private static boolean useLocationAutoSave;
+	private static boolean forceLegacy;
 	private static boolean includeSlabs;
 	private static boolean includeStairs;
 	private static int locationAutoSaveTime;
@@ -17,6 +18,7 @@ public class PlaceItemsConfig {
 	private static ArrayList<String> blockLikeItems;
 	private static ArrayList<String> placeIn;
 	private static ArrayList<String> slabs;
+	private static ArrayList<String> legacyDoubleSlabs;
 	private static ArrayList<String> stairs;
 	
 
@@ -97,6 +99,18 @@ public class PlaceItemsConfig {
 	}
 	public static void setIncludeStairs(boolean includeStairs) {
 		PlaceItemsConfig.includeStairs = includeStairs;
+	}
+	public static ArrayList<String> getLegacyDoubleSlabs() {
+		return legacyDoubleSlabs;
+	}
+	public static void setLegacyDoubleSlabs(ArrayList<String> legacyDoubleSlabs) {
+		PlaceItemsConfig.legacyDoubleSlabs = legacyDoubleSlabs;
+	}
+	public static boolean isForceLegacy() {
+		return forceLegacy;
+	}
+	public static void setForceLegacy(boolean forceLegacy) {
+		PlaceItemsConfig.forceLegacy = forceLegacy;
 	}
 	
 

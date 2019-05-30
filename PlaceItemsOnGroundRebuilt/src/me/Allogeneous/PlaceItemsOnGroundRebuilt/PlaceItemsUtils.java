@@ -46,6 +46,10 @@ public class PlaceItemsUtils {
 		return PlaceItemsConfig.getStairs().contains(type.toString());
 	}
 	
+	public static boolean isLegacyDoubleSab(Material type) {
+		return PlaceItemsConfig.getLegacyDoubleSlabs().contains(type.toString());
+	}
+	
 	public static EulerAngle calcBlockArmorStandHeadPos(Location location){
          return new EulerAngle(0, Math.toRadians(location.getYaw()) + Math.PI, 0);
 	}
