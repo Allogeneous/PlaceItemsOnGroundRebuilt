@@ -46,7 +46,7 @@ public class PlaceItemsUtils {
 		return PlaceItemsConfig.getStairs().contains(type.toString());
 	}
 	
-	public static boolean isLegacyDoubleSab(Material type) {
+	public static boolean isLegacyDoubleSlab(Material type) {
 		return PlaceItemsConfig.getLegacyDoubleSlabs().contains(type.toString());
 	}
 	

@@ -58,6 +58,7 @@ public class PlaceItemsVersionSensativeMethods {
 		}else if(PlaceItemsUtils.isSlab(block.getType())){
 			return block.getBlockData().getAsString().contains("type=top") || block.getBlockData().getAsString().contains("type=double");
 		}
+		return false;
 	}
 	
 	private boolean validSlabOrStair1_12down(Block block) {
@@ -65,7 +66,7 @@ public class PlaceItemsVersionSensativeMethods {
 			return block.getState().getData().toString().contains("inverted");
 		}else if(PlaceItemsUtils.isSlab(block.getType())){
 			return block.getState().getData().toString().contains("inverted");
-		}else if(PlaceItemsUtils.isLegacyDoubleSab(block.getType())){
+		}else if(PlaceItemsUtils.isLegacyDoubleSlab(block.getType())){
 			return true;
 		}
 		return false;

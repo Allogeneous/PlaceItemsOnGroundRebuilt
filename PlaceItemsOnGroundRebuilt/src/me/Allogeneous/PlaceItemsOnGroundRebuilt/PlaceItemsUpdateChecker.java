@@ -1,10 +1,10 @@
 package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlaceItemsUpdateChecker extends BukkitRunnable{
