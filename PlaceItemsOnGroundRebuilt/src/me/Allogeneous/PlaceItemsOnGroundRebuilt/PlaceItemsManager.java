@@ -104,7 +104,7 @@ public class PlaceItemsManager {
 					FileConfiguration newPlayerData = YamlConfiguration.loadConfiguration(data);
 					newPlayerData.addDefault("uuid", p.getUniqueId().toString());
 					newPlayerData.addDefault("name", p.getName());
-					newPlayerData.addDefault("placeCap", PlaceItemsConfig.getDefaultPlaceCap());
+					newPlayerData.addDefault("placeCap", 0);
 					newPlayerData.addDefault("hasCustomPlaceCap", false);
 					newPlayerData.addDefault("ammountPlaced", 0);
 					newPlayerData.addDefault("placeToggled", false);
@@ -123,12 +123,6 @@ public class PlaceItemsManager {
 	public void updateUsername(Player p) {
 		FileConfiguration file = getDataFile(p);
 		file.set("name", p.getName());
-	}
-
-	public void checkPlayerCapOnJoin(Player p){
-		if(getMaxPlacements(p) != PlaceItemsConfig.getDefaultPlaceCap() && !getHasCustomPlaceCap(p)){
-			setMaxPlacements(p, PlaceItemsConfig.getDefaultPlaceCap());
-		}
 	}
 	
 	public boolean confirmFileExistance(UUID uuid){
@@ -250,17 +244,13 @@ public class PlaceItemsManager {
 	}
 	
 	public int getPlacements(Player p){
-		
-			FileConfiguration file = getDataFile(p);
-			return file.getInt("ammountPlaced", 0);
-		
+		FileConfiguration file = getDataFile(p);
+		return file.getInt("ammountPlaced", 0);
 	}
 	
 	public int getPlacements(UUID uuid){
-		
-			FileConfiguration file = getDataFile(uuid);
-			return file.getInt("ammountPlaced", 0);
-		
+		FileConfiguration file = getDataFile(uuid);
+		return file.getInt("ammountPlaced", 0);
 	}
 	
 	public void setMaxPlacements(Player p, int amount){
@@ -316,66 +306,63 @@ public class PlaceItemsManager {
 	}
 	
 	public boolean getHasCustomPlaceCap(Player p){
-			FileConfiguration file = getDataFile(p);
-			return file.getBoolean("hasCustomPlaceCap", false);
-		
+		FileConfiguration file = getDataFile(p);
+		return file.getBoolean("hasCustomPlaceCap", false);
 	}
 	
 	public boolean getHasCustomPlaceCap(UUID uuid){
-		
-			FileConfiguration file = getDataFile(uuid);
-			return file.getBoolean("hasCustomPlaceCap", false);
-		
+		FileConfiguration file = getDataFile(uuid);
+		return file.getBoolean("hasCustomPlaceCap", false);
 	}
 	
 	public int getMaxPlacements(Player p){
+		if(getHasCustomPlaceCap(p)) {
 			FileConfiguration file = getDataFile(p);
-			return file.getInt("placeCap", -2);
-		
+			return file.getInt("placeCap", 0);
+		}else {
+			return PlaceItemsConfig.getDefaultPlaceCap();
+		}
 	}
 	
 	public int getMaxPlacements(UUID uuid){
+		if(getHasCustomPlaceCap(uuid)) {
 			FileConfiguration file = getDataFile(uuid);
-			return file.getInt("placeCap", -2);
+			return file.getInt("placeCap", 0);
+		}else {
+			return PlaceItemsConfig.getDefaultPlaceCap();
+		}
 	}
 	
 	public void setPlaceToggled(Player p, boolean on){
-			FileConfiguration file = getDataFile(p);
-			file.set("placeToggled", on);
-			try {
-				file.save(rawFile(p));
-			} catch (IOException e) {
-				plugin.getLogger().info("Unable to save player config file for UUID: " + p.getUniqueId().toString());
-				e.printStackTrace();
-			}
-		
+		FileConfiguration file = getDataFile(p);
+		file.set("placeToggled", on);
+		try {
+			file.save(rawFile(p));
+		} catch (IOException e) {
+			plugin.getLogger().info("Unable to save player config file for UUID: " + p.getUniqueId().toString());
+			e.printStackTrace();
+		}
 	}
 	
 	public void setPlaceToggled(UUID uuid, boolean on){
-		
-			FileConfiguration file = getDataFile(uuid);
-			file.set("placeToggled", on);
-			try {
-				file.save(rawFile(uuid));
-			} catch (IOException e) {
-				plugin.getLogger().info("Unable to save player config file for UUID: " + uuid.toString());
-				e.printStackTrace();
-			}
-		
+		FileConfiguration file = getDataFile(uuid);
+		file.set("placeToggled", on);
+		try {
+			file.save(rawFile(uuid));
+		} catch (IOException e) {
+			plugin.getLogger().info("Unable to save player config file for UUID: " + uuid.toString());
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean getPlaceToggled(Player p){
-		
-			FileConfiguration file = getDataFile(p);
-			return file.getBoolean("placeToggled", false);
-		
+		FileConfiguration file = getDataFile(p);
+		return file.getBoolean("placeToggled", false);
 	}
 	
 	public boolean getPlaceToggled(UUID uuid){
-		
-			FileConfiguration file = getDataFile(uuid);
-			return file.getBoolean("placeToggled", false);
-		
+		FileConfiguration file = getDataFile(uuid);
+		return file.getBoolean("placeToggled", false);
 	}
 	
 	public ArrayDeque<PlaceItemsLinkedLocation> getPlacedItemLinkedLocations() {

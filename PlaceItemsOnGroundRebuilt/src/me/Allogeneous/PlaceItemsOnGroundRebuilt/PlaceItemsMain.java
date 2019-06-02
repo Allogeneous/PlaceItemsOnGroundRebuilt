@@ -12,11 +12,12 @@ public class PlaceItemsMain extends JavaPlugin{
 
 	private PlaceItemsManager manager;
 	private PlaceItemsLocationAutoSaver autoSaver;
-	private PlaceItemsVersionSensativeMethods versionHandler;
+	private PlaceItemsVersionSensitiveMethods versionHandler;
+	private int configVersion = 3;
 	
 	@Override
 	public void onEnable(){
-		versionHandler = new PlaceItemsVersionSensativeMethods(Bukkit.getBukkitVersion()); 
+		versionHandler = new PlaceItemsVersionSensitiveMethods(Bukkit.getBukkitVersion()); 
 		createConfig();
 		verifyConfigVersion();
 		loadConfig();
@@ -149,7 +150,7 @@ public class PlaceItemsMain extends JavaPlugin{
 	}
 	
 	private void verifyConfigVersion(){
-		if(getConfig().getInt("configVersion", 0) != 2){
+		if(getConfig().getInt("configVersion", 0) != configVersion){
 			getLogger().info("Invalid config file found, creating a new one and copying the old one...");
 			try{
 			      File file = new File(getDataFolder(), "config.yml");

@@ -26,9 +26,9 @@ import net.md_5.bungee.api.ChatColor;
 public class PlaceItemsEvents implements Listener{
 	
 	private PlaceItemsManager manager;
-	private PlaceItemsVersionSensativeMethods versionHandler;
+	private PlaceItemsVersionSensitiveMethods versionHandler;
 	
-	public PlaceItemsEvents(PlaceItemsManager manager, PlaceItemsVersionSensativeMethods versionHandler){
+	public PlaceItemsEvents(PlaceItemsManager manager, PlaceItemsVersionSensitiveMethods versionHandler){
 		this.manager = manager;
 		this.versionHandler = versionHandler;
 	}
@@ -36,7 +36,6 @@ public class PlaceItemsEvents implements Listener{
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e){
 		manager.makeNewPlayerFile(e.getPlayer());
-		manager.checkPlayerCapOnJoin(e.getPlayer());
 		manager.updateUsername(e.getPlayer());
 	}
 
@@ -64,6 +63,12 @@ public class PlaceItemsEvents implements Listener{
 					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items!");
 					return;
 				}
+				
+				if(PlaceItemsUtils.isBlacklisted(p.getInventory().getItemInMainHand().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place " + ChatColor.YELLOW + p.getInventory().getItemInMainHand().getType() + ChatColor.RED + "!");
+					return;
+				}
+				
 				if(manager.containsPhysical(e.getClickedBlock().getLocation())){
 					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place more than one item on a block!");
 					return;
@@ -106,15 +111,26 @@ public class PlaceItemsEvents implements Listener{
 			}
 
 			if(isBlockey(p.getInventory().getItemInMainHand())){
-				ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(e.getClickedBlock().getLocation().add(0.5, -0.35, 0.5), EntityType.ARMOR_STAND);
-
-				a.setVisible(false);
-				a.setGravity(false);
-				a.setBasePlate(false);
-				a.setInvulnerable(true);
-				a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-				a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPos(p.getEyeLocation()));
-				manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
+				if(PlaceItemsUtils.isSpecialCases2(p.getInventory().getItemInMainHand().getType())) {
+					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(e.getClickedBlock().getLocation().add(0.5, -0.6, 0.5), EntityType.ARMOR_STAND);
+					a.setVisible(false);
+					a.setGravity(false);
+					a.setBasePlate(false);
+					a.setInvulnerable(true);
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPosSpecialCases2(p.getEyeLocation()));
+					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
+				}else {
+					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(e.getClickedBlock().getLocation().add(0.5, -0.35, 0.5), EntityType.ARMOR_STAND);
+					a.setVisible(false);
+					a.setGravity(false);
+					a.setBasePlate(false);
+					a.setInvulnerable(true);
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPos(p.getEyeLocation()));
+					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
+				}
+				
 				if(p.getInventory().getItemInMainHand().getAmount() == 1) {
 					p.getInventory().setItemInMainHand(null);
 				}else {
@@ -124,15 +140,26 @@ public class PlaceItemsEvents implements Listener{
 				manager.setPlacements(p, manager.getPlacements(p) + 1);
 				p.updateInventory();
 			}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-				ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), e.getClickedBlock().getLocation()), EntityType.ARMOR_STAND);
+				if(PlaceItemsUtils.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
+					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), e.getClickedBlock().getLocation()), EntityType.ARMOR_STAND);
+					a.setVisible(false);
+					a.setGravity(false);
+					a.setBasePlate(false);
+					a.setInvulnerable(true);
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPosSpecialCases1(p.getEyeLocation()));
+					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
+				}else {
+					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), e.getClickedBlock().getLocation()), EntityType.ARMOR_STAND);
+					a.setVisible(false);
+					a.setGravity(false);
+					a.setBasePlate(false);
+					a.setInvulnerable(true);
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
+					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
+				}
 				
-				a.setVisible(false);
-				a.setGravity(false);
-				a.setBasePlate(false);
-				a.setInvulnerable(true);
-				a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-				a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
-				manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
 				p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
 				if(p.getInventory().getItemInMainHand().getAmount() == 1) {
 					p.getInventory().setItemInMainHand(null);
@@ -156,8 +183,6 @@ public class PlaceItemsEvents implements Listener{
 	
 	}
 	
-	
-	
 	private boolean isValidPlace(Material type) {
 		if(!PlaceItemsUtils.isBlackListedPlaceItem(type)) {
 			if(type.isBlock() && type.isSolid()) {
@@ -168,7 +193,7 @@ public class PlaceItemsEvents implements Listener{
 	}
 	
 	private boolean isBlockey(ItemStack item){
-		if(!PlaceItemsUtils.isBlacklisted(item.getType()) && !PlaceItemsUtils.isItemLikeBlock(item.getType())){
+		if(!PlaceItemsUtils.isItemLikeBlock(item.getType())){
 			if(item.getType().isBlock()){
 				return true;
 			}

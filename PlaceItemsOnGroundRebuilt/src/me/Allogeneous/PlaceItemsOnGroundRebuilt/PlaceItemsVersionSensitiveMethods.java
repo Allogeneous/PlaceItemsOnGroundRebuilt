@@ -4,16 +4,16 @@ package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
-public class PlaceItemsVersionSensativeMethods {
+public class PlaceItemsVersionSensitiveMethods {
 	
 	private String version;
 	
-	public PlaceItemsVersionSensativeMethods(String version) {
+	public PlaceItemsVersionSensitiveMethods(String version) {
 		this.version = version;
 	}
 	
 	public boolean isValidSlabOrStair(Block block) {
-		if(version.contains("1.13") || version.contains("1.14")) {
+		if(!version.contains("1.9") && !version.contains("1.10") && !version.contains("1.11") && !version.contains("1.12")) {
 			return validSlabOrStair1_13up(block);
 		}else {
 			return validSlabOrStair1_12down(block);
@@ -21,7 +21,7 @@ public class PlaceItemsVersionSensativeMethods {
 	}
 	
 	public boolean isItemey(ItemStack item){
-		if(version.contains("1.12") || version.contains("1.13") || version.contains("1.14")) {
+		if(!version.contains("1.9") && !version.contains("1.10") && !version.contains("1.11")) {
 			return isItemey1_12up(item);
 		}else {
 			return isItemey1_11down(item);
@@ -29,25 +29,21 @@ public class PlaceItemsVersionSensativeMethods {
 	}
 	
 	private boolean isItemey1_12up(ItemStack item){
-		if(!PlaceItemsUtils.isBlacklisted(item.getType())){
-			if(item.getType().isItem()){
-				return true;
-			}
-			if(PlaceItemsUtils.isItemLikeBlock(item.getType())){
-				return true;
-			}
+		if(item.getType().isItem()){
+			return true;
+		}
+		if(PlaceItemsUtils.isItemLikeBlock(item.getType())){
+			return true;
 		}
 		return false;
 	}
 	
 	private boolean isItemey1_11down(ItemStack item){
-		if(!PlaceItemsUtils.isBlacklisted(item.getType())){
-			if(!item.getType().isBlock()){
-				return true;
-			}
-			if(PlaceItemsUtils.isItemLikeBlock(item.getType())){
-				return true;
-			}
+		if(!item.getType().isBlock()){
+			return true;
+		}
+		if(PlaceItemsUtils.isItemLikeBlock(item.getType())){
+			return true;
 		}
 		return false;
 	}
@@ -77,7 +73,7 @@ public class PlaceItemsVersionSensativeMethods {
 	}
 	
 	public boolean isLegacy() {
-		return !(this.getVersion().contains("1.13") || this.getVersion().contains("1.14"));
+		return(version.contains("1.9") || version.contains("1.10") || version.contains("1.11") || version.contains("1.12"));
 	}
 
 }

@@ -190,7 +190,7 @@ public class PlaceItemsCommands implements CommandExecutor{
 								return true;
 							}
 						
-							manager.setMaxPlacements(target, PlaceItemsConfig.getDefaultPlaceCap());
+							manager.setMaxPlacements(target, 0);
 							manager.setHasCustomPlaceCap(target, false);
 							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s placement cap has been reset to the default placement cap!");
 						}

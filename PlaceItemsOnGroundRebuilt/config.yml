@@ -15,7 +15,8 @@ defaultPlaceCap: 10
 
 #HOW TO CHANGE A LIST:
 #Add items to this list using ", TYPE" without quotes. Make sure all items on the list are on the same line. Here is a link to all item type names: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
-#Note that if there are any items on here that are not in the current version of the server you are running, they will just be ignored. This existing lists have all items from 1.13 to 1.14.
+#Note that if there are any items on here that are not in the current version of the server you are running, they will just be ignored. 
+#The lists that do not start with legacy have all items from 1.13 to 1.14. Lists that start with legacy will be used for versions older than 1.13
 
 ###################
 #BLACKLISTED ITEMS#
@@ -28,9 +29,9 @@ blacklistedItems: WHITE_BED, ORANGE_BED, MAGENTA_BED, LIGHT_BLUE_BED, YELLOW_BED
   GREEN_BED, RED_BED, BLACK_BED, WHITE_BANNER, ORANGE_BANNER, MAGENTA_BANNER, LIGHT_BLUE_BANNER,
   YELLOW_BANNER, LIME_BANNER, PINK_BANNER, GRAY_BANNER, LIGHT_GRAY_BANNER, CYAN_BANNER,
   PURPLE_BANNER, BLUE_BANNER, BROWN_BANNER, GREEN_BANNER, RED_BANNER, BLACK_BANNER,
-  LEAD, TRIDENT, SHIELD, END_ROD, BONE
+  TRIDENT, SHIELD
 
-legacyBlacklistedItems: LEASH, BED, END_ROD, SHIELD, BANNER, BONE
+legacyBlacklistedItems: BED, SHIELD, BANNER
 
 #################
 #DO NOT PLACE ON#
@@ -130,10 +131,9 @@ blockLikeItems: LEATHER_HELMET, CHAINMAIL_HELMET, GOLD_HELMET, IRON_HELMET, DIAM
 legacyBlockLikeItems: LEATHER_HELMET, CHAINMAIL_HELMET, GOLD_HELMET, IRON_HELMET, DIAMOND_HELMET,
   TURTLE_HELMET, SKULL_ITEM
 
-############
-#ITEM LISTS#
-############
-#These are just lists of items that the plugin uses for orientation checks
+##########
+#PLACE IN#
+##########
 
 #Blocks the user can place items in (blocks above the one clicked)
 placeIn: AIR, CAVE_AIR, WATER
@@ -141,4 +141,4 @@ placeIn: AIR, CAVE_AIR, WATER
 ##############
 #DO NOT TOUCH#
 ##############
-configVersion: 2 
+configVersion: 3 
