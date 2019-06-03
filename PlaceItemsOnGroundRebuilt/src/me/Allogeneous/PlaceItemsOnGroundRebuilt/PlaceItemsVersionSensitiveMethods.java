@@ -22,13 +22,16 @@ public class PlaceItemsVersionSensitiveMethods {
 	
 	public boolean isItemey(ItemStack item){
 		if(!version.contains("1.9") && !version.contains("1.10") && !version.contains("1.11")) {
-			return isItemey1_12up(item);
+			if(version.contains("1.12") && !version.contains("1.12.2")) {
+				return isItemey1_12_1down(item);
+			}
+			return isItemey1_12_2up(item);
 		}else {
-			return isItemey1_11down(item);
+			return isItemey1_12_1down(item);
 		}
 	}
 	
-	private boolean isItemey1_12up(ItemStack item){
+	private boolean isItemey1_12_2up(ItemStack item){
 		if(item.getType().isItem()){
 			return true;
 		}
@@ -38,7 +41,7 @@ public class PlaceItemsVersionSensitiveMethods {
 		return false;
 	}
 	
-	private boolean isItemey1_11down(ItemStack item){
+	private boolean isItemey1_12_1down(ItemStack item){
 		if(!item.getType().isBlock()){
 			return true;
 		}

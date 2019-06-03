@@ -2,6 +2,7 @@ package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 
 import java.util.Collection;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -45,6 +47,13 @@ public class PlaceItemsEvents implements Listener{
 			Player p = e.getPlayer();
 			
 			if(e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
+				return;
+			}
+			
+			BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
+			Bukkit.getServer().getPluginManager().callEvent(bpe);
+			
+			if(bpe.isCancelled()) {
 				return;
 			}
 			
@@ -220,6 +229,17 @@ public class PlaceItemsEvents implements Listener{
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to take items!");
 						return;
 					}
+					
+					PlaceItemsLinkedLocation data = manager.getFromProp(a.getLocation());
+					
+					PlaceItemsOnGroundBreakEvent bbe = new PlaceItemsOnGroundBreakEvent(data.getPhysicalLoc().getBlock(), e.getPlayer());
+					Bukkit.getServer().getPluginManager().callEvent(bbe);
+					
+					
+					if(bbe.isCancelled()) {
+						return;
+					}
+					
 					ItemStack hem = a.getHelmet();
 					hem.setAmount(1);
 					if(p.getInventory().firstEmpty() != -1){
@@ -227,7 +247,7 @@ public class PlaceItemsEvents implements Listener{
 					}else{
 						p.getWorld().dropItemNaturally(e.getRightClicked().getLocation().clone().add(0, 1, 0), hem);
 					}
-					manager.setPlacements(manager.getFromProp(a.getLocation()).getPlacer(), manager.getPlacements(manager.getFromProp(a.getLocation()).getPlacer()) - 1);
+					manager.setPlacements(data.getPlacer(), manager.getPlacements(data.getPlacer()) - 1);
 					manager.removeProp(a.getLocation());
 					a.remove();
 				}
@@ -237,6 +257,9 @@ public class PlaceItemsEvents implements Listener{
 	
 	@EventHandler
 	public void onPlayerTakeBreak(BlockBreakEvent e){
+		if(e instanceof PlaceItemsOnGroundBreakEvent) {
+			return;
+		}
 		if(e.isCancelled()) {
 			return;
 		}
