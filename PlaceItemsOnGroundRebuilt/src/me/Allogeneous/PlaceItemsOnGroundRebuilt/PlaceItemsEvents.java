@@ -160,7 +160,7 @@ public class PlaceItemsEvents implements Listener{
 					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
 				}
 				
-				p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+				
 				if(p.getInventory().getItemInMainHand().getAmount() == 1) {
 					p.getInventory().setItemInMainHand(null);
 				}else {
