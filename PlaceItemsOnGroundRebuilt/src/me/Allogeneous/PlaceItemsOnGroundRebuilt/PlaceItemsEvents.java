@@ -50,6 +50,10 @@ public class PlaceItemsEvents implements Listener{
 				return;
 			}
 			
+			if(e.getClickedBlock() == null) {
+				return;
+			}
+			
 			BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
 			Bukkit.getServer().getPluginManager().callEvent(bpe);
 			
