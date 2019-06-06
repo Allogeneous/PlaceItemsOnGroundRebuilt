@@ -1,5 +1,5 @@
 name: PlaceItemsOnGroundRebuilt
-version: 1.0.6b
+version: 1.0.7b
 api-version: 1.13
 author: Allogeneous
 main: me.Allogeneous.PlaceItemsOnGroundRebuilt.PlaceItemsMain
@@ -21,6 +21,9 @@ permissions:
         default: true
     placeitems.take:
         description: Allows user to pick items up off the ground
+        default: true
+    placeitems.cap:
+        description: Base permission for permission based caps
         default: true
     placeitems.set:
         description: Allows user to set placement cap on other players with /placeitems set

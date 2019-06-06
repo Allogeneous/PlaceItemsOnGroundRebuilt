@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -29,6 +30,7 @@ public class PlaceItemsEvents implements Listener{
 	
 	private PlaceItemsManager manager;
 	private PlaceItemsVersionSensitiveMethods versionHandler;
+	private String permissionCapPrefix = "placeitems.cap.";
 	
 	public PlaceItemsEvents(PlaceItemsManager manager, PlaceItemsVersionSensitiveMethods versionHandler){
 		this.manager = manager;
@@ -60,9 +62,8 @@ public class PlaceItemsEvents implements Listener{
 			if(bpe.isCancelled()) {
 				return;
 			}
-			
 			if(e.getAction() == Action.RIGHT_CLICK_BLOCK && isBlockey(p.getInventory().getItemInMainHand())) {
-				if(manager.containsPhysical(e.getClickedBlock().getLocation())) {
+				if(manager.containsPhysical(e.getClickedBlock().getLocation()) && e.getBlockFace() == BlockFace.UP) {
 					e.setCancelled(true);
 					return;
 				}
@@ -105,19 +106,11 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}
 				
-				if(manager.getHasCustomPlaceCap(p)) {
-					if(manager.getMaxPlacements(p) != PlaceItemsManager.UNLIMITED && manager.getMaxPlacements(p) <= manager.getPlacements(p)){
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
-						return;
-					}
-				}else {
-					if(PlaceItemsConfig.getDefaultPlaceCap() != PlaceItemsManager.UNLIMITED) {
-						if(PlaceItemsConfig.getDefaultPlaceCap() <= manager.getPlacements(p)){
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
-							return;
-						}
-					}
+				if(!handlePermissionCheck(p)) {
+					return;
 				}
+				
+					
 				
 			}else{
 				return;
@@ -313,5 +306,48 @@ public class PlaceItemsEvents implements Listener{
 				return;
 			}
 		}
+	}
+	
+	private boolean handlePermissionCheck(Player p) {
+		
+		for(PermissionAttachmentInfo attachmentInfo : p.getEffectivePermissions()) {
+		      if(attachmentInfo.getPermission().startsWith("placeitems.cap.")) {
+		    	  String permission = attachmentInfo.getPermission();
+		    	  String value = permission.substring(permission.lastIndexOf(".") + 1);
+		    	  int maxPlacements = 0;
+		    	  
+		    	  if(!value.equalsIgnoreCase("" + PlaceItemsManager.UNLIMITED_CHAR_1)) {
+		    		  try {
+		    			  maxPlacements = Integer.parseInt(value);
+		    		  }catch(Exception e) {
+		    			  p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have an error with your permission, using default settings!");
+		    			  break;
+		    		  }
+		    		if(maxPlacements != PlaceItemsManager.UNLIMITED && maxPlacements <= manager.getPlacements(p)){
+		  				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+		  				return false;
+		  			}else {
+		  				return true;
+		  			}
+		    	  }else {
+		    		  return true;
+		    	  }
+		      }
+		   }
+		
+		if(manager.getHasCustomPlaceCap(p)) {
+			if(manager.getMaxPlacements(p) != PlaceItemsManager.UNLIMITED && manager.getMaxPlacements(p) <= manager.getPlacements(p)){
+				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+				return false;
+			}
+		}else {
+			if(PlaceItemsConfig.getDefaultPlaceCap() != PlaceItemsManager.UNLIMITED) {
+				if(PlaceItemsConfig.getDefaultPlaceCap() <= manager.getPlacements(p)){
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }

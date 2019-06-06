@@ -239,8 +239,6 @@ public class PlaceItemsManager {
 				plugin.getLogger().info("Unable to save player config file for UUID: " + uuid);
 				e.printStackTrace();
 			}
-		
-		
 	}
 	
 	public int getPlacements(Player p){
