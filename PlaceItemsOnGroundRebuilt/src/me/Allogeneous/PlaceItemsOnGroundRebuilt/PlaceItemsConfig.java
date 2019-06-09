@@ -6,14 +6,22 @@ public class PlaceItemsConfig {
 	
 	private static boolean useLocationAutoSave;
 	private static boolean forceLegacy;
-	private static boolean includeSlabs;
-	private static boolean includeStairs;
 	private static int locationAutoSaveTime;
 	private static int defaultPlaceCap;
+	private static boolean allowTopPlacing;
+	private static boolean allowSidePlacing;
+	private static boolean allowBottomPlacing;
+	private static boolean includeBlocksThatCanMoveOrDisappear;
 	private static int configVersion;
 
-	private static ArrayList<String> blackListedItems;
-	private static ArrayList<String> blackListedPlaceItems;
+	private static ArrayList<String> blackListedItemsAll;
+	private static ArrayList<String> blackListedItemsTop;
+	private static ArrayList<String> blackListedItemsSides;
+	private static ArrayList<String> blackListedItemsBottom;
+	private static ArrayList<String> blackListedPlaceItemsAll;
+	private static ArrayList<String> blackListedPlaceItemsTop;
+	private static ArrayList<String> blackListedPlaceItemsSides;
+	private static ArrayList<String> blackListedPlaceItemsBottom;
 	private static ArrayList<String> itemLikeBlocks;
 	private static ArrayList<String> blockLikeItems;
 	private static ArrayList<String> placeIn;
@@ -40,12 +48,6 @@ public class PlaceItemsConfig {
 	public static void setDefaultPlaceCap(int defaultPlaceCap) {
 		PlaceItemsConfig.defaultPlaceCap = defaultPlaceCap;
 	}
-	public static ArrayList<String> getBlackListedItems() {
-		return blackListedItems;
-	}
-	public static void setBlackListedItems(ArrayList<String> blackListedItems) {
-		PlaceItemsConfig.blackListedItems = blackListedItems;
-	}
 	public static ArrayList<String> getItemLikeBlocks() {
 		return itemLikeBlocks;
 	}
@@ -63,12 +65,6 @@ public class PlaceItemsConfig {
 	}
 	public static void setConfigVersion(int configVersion) {
 		PlaceItemsConfig.configVersion = configVersion;
-	}
-	public static ArrayList<String> getBlackListedPlaceItems() {
-		return blackListedPlaceItems;
-	}
-	public static void setBlackListedPlaceItems(ArrayList<String> blackListedPlaceItems) {
-		PlaceItemsConfig.blackListedPlaceItems = blackListedPlaceItems;
 	}
 	public static ArrayList<String> getPlaceIn() {
 		return placeIn;
@@ -88,18 +84,6 @@ public class PlaceItemsConfig {
 	public static void setStairs(ArrayList<String> stairs) {
 		PlaceItemsConfig.stairs = stairs;
 	}
-	public static boolean isIncludeSlabs() {
-		return includeSlabs;
-	}
-	public static void setIncludeSlabs(boolean includeSlabs) {
-		PlaceItemsConfig.includeSlabs = includeSlabs;
-	}
-	public static boolean isIncludeStairs() {
-		return includeStairs;
-	}
-	public static void setIncludeStairs(boolean includeStairs) {
-		PlaceItemsConfig.includeStairs = includeStairs;
-	}
 	public static ArrayList<String> getLegacyDoubleSlabs() {
 		return legacyDoubleSlabs;
 	}
@@ -111,6 +95,78 @@ public class PlaceItemsConfig {
 	}
 	public static void setForceLegacy(boolean forceLegacy) {
 		PlaceItemsConfig.forceLegacy = forceLegacy;
+	}
+	public static boolean isAllowTopPlacing() {
+		return allowTopPlacing;
+	}
+	public static void setAllowTopPlacing(boolean allowTopPlacing) {
+		PlaceItemsConfig.allowTopPlacing = allowTopPlacing;
+	}
+	public static boolean isAllowSidePlacing() {
+		return allowSidePlacing;
+	}
+	public static void setAllowSidePlacing(boolean allowSidePlacing) {
+		PlaceItemsConfig.allowSidePlacing = allowSidePlacing;
+	}
+	public static boolean isAllowBottomPlacing() {
+		return allowBottomPlacing;
+	}
+	public static void setAllowBottomPlacing(boolean allowBottomPlacing) {
+		PlaceItemsConfig.allowBottomPlacing = allowBottomPlacing;
+	}
+	public static ArrayList<String> getBlackListedItemsAll() {
+		return blackListedItemsAll;
+	}
+	public static void setBlackListedItemsAll(ArrayList<String> blackListedItemsAll) {
+		PlaceItemsConfig.blackListedItemsAll = blackListedItemsAll;
+	}
+	public static ArrayList<String> getBlackListedItemsTop() {
+		return blackListedItemsTop;
+	}
+	public static void setBlackListedItemsTop(ArrayList<String> blackListedItemsTop) {
+		PlaceItemsConfig.blackListedItemsTop = blackListedItemsTop;
+	}
+	public static ArrayList<String> getBlackListedItemsSides() {
+		return blackListedItemsSides;
+	}
+	public static void setBlackListedItemsSides(ArrayList<String> blackListedItemsSides) {
+		PlaceItemsConfig.blackListedItemsSides = blackListedItemsSides;
+	}
+	public static ArrayList<String> getBlackListedItemsBottom() {
+		return blackListedItemsBottom;
+	}
+	public static void setBlackListedItemsBottom(ArrayList<String> blackListedItemsBottom) {
+		PlaceItemsConfig.blackListedItemsBottom = blackListedItemsBottom;
+	}
+	public static ArrayList<String> getBlackListedPlaceItemsAll() {
+		return blackListedPlaceItemsAll;
+	}
+	public static void setBlackListedPlaceItemsAll(ArrayList<String> blackListedPlaceItemsAll) {
+		PlaceItemsConfig.blackListedPlaceItemsAll = blackListedPlaceItemsAll;
+	}
+	public static ArrayList<String> getBlackListedPlaceItemsTop() {
+		return blackListedPlaceItemsTop;
+	}
+	public static void setBlackListedPlaceItemsTop(ArrayList<String> blackListedPlaceItemsTop) {
+		PlaceItemsConfig.blackListedPlaceItemsTop = blackListedPlaceItemsTop;
+	}
+	public static ArrayList<String> getBlackListedPlaceItemsSides() {
+		return blackListedPlaceItemsSides;
+	}
+	public static void setBlackListedPlaceItemsSides(ArrayList<String> blackListedPlaceItemsSides) {
+		PlaceItemsConfig.blackListedPlaceItemsSides = blackListedPlaceItemsSides;
+	}
+	public static ArrayList<String> getBlackListedPlaceItemsBottom() {
+		return blackListedPlaceItemsBottom;
+	}
+	public static void setBlackListedPlaceItemsBottom(ArrayList<String> blackListedPlaceItemsBottom) {
+		PlaceItemsConfig.blackListedPlaceItemsBottom = blackListedPlaceItemsBottom;
+	}
+	public static boolean isIncludeBlocksThatCanMoveOrDisappear() {
+		return includeBlocksThatCanMoveOrDisappear;
+	}
+	public static void setIncludeBlocksThatCanMoveOrDisappear(boolean includeBlocksThatCanMoveOrDisappear) {
+		PlaceItemsConfig.includeBlocksThatCanMoveOrDisappear = includeBlocksThatCanMoveOrDisappear;
 	}
 	
 

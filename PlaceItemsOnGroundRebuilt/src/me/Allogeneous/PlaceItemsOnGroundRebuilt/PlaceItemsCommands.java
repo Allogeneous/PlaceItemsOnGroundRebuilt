@@ -7,6 +7,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
 
 
 
@@ -74,7 +77,7 @@ public class PlaceItemsCommands implements CommandExecutor{
 							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You must be a player to send that command!");
 						}
 					}else {
-						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission use that command!");
+						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to use that command!");
 					}
 					return true;
 				}
@@ -121,10 +124,17 @@ public class PlaceItemsCommands implements CommandExecutor{
 							manager.setMaxPlacements(target, numberAmount);
 							manager.setHasCustomPlaceCap(target, true);
 						
+							for(PermissionAttachmentInfo attachmentInfo : target.getEffectivePermissions()) {
+							      if(attachmentInfo.getPermission().startsWith("placeitems.cap.")) {
+							    	  sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Warning: "+ target.getName() + " already has a cap set via permissions! This command will update the file based placement cap but, the permission cap will override the file based one until it is removed!");
+							    	  break;
+							      }
+							}
+							
 							if(unltd) {
-								sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s item placement cap has been set to " + ChatColor.GREEN + "UNLIMITED!");
+								sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s file based item placement cap has been set to " + ChatColor.GREEN + "UNLIMITED!");
 							}else {
-								sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s item placement cap has been set to " + ChatColor.GREEN + numberAmount + "!");
+								sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s file based item placement cap has been set to " + ChatColor.GREEN + numberAmount + "!");
 							}
 						}
 					}else {
@@ -192,7 +202,13 @@ public class PlaceItemsCommands implements CommandExecutor{
 						
 							manager.setMaxPlacements(target, 0);
 							manager.setHasCustomPlaceCap(target, false);
-							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s placement cap has been reset to the default placement cap!");
+							for(PermissionAttachmentInfo attachmentInfo : target.getEffectivePermissions()) {
+							      if(attachmentInfo.getPermission().startsWith("placeitems.cap.")) {
+							    	  sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Warning: "+ target.getName() + " already has a cap set via permissions! This command will reset the file based placement cap but, the permission cap will override the file based one until it is removed!");
+							    	  break;
+							      }
+							}
+							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s file based placement cap has been reset to the default placement cap!");
 						}
 					}else {
 						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission use that command!");

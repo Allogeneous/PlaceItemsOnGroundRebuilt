@@ -16,6 +16,10 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.EulerAngle;
 
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.AdvancedPlaceItemsLinkedLocation;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsPlayerPlaceLocation;
+
 public class PlaceItemsUtils {
 	
 	public static final String[] SPECIAL_CASES_1 = {"LEAD", "LEASH", "BONE"};
@@ -39,12 +43,62 @@ public class PlaceItemsUtils {
 		return false;
 	}
 	
-	public static boolean isBlacklisted(Material type){
-		return PlaceItemsConfig.getBlackListedItems().contains(type.toString());
+	public static boolean isBlacklisted(Material type, String blockFace){
+		if(PlaceItemsConfig.getBlackListedItemsAll().contains(type.toString())) {
+			return true;
+		}
+		switch(blockFace) {
+		case "UP":
+			if(PlaceItemsConfig.getBlackListedItemsTop().contains(type.toString())) {
+				return true;
+			}
+			break;
+		case "DOWN":
+			if(PlaceItemsConfig.getBlackListedItemsBottom().contains(type.toString())) {
+				return true;
+			}
+			break;
+		case "NORTH":
+		case "SOUTH":
+		case "WEST":
+		case "EAST":
+			if(PlaceItemsConfig.getBlackListedItemsSides().contains(type.toString())) {
+				return true;
+			}
+			break;
+		default:
+			return false;
+		}
+		return false;
 	}
 	
-	public static boolean isBlackListedPlaceItem(Material type) {
-		return PlaceItemsConfig.getBlackListedPlaceItems().contains(type.toString());
+	public static boolean isBlackListedPlaceItem(Material type, String blockFace) {
+		if(PlaceItemsConfig.getBlackListedPlaceItemsAll().contains(type.toString())) {
+			return true;
+		}
+		switch(blockFace) {
+		case "UP":
+			if(PlaceItemsConfig.getBlackListedPlaceItemsTop().contains(type.toString())) {
+				return true;
+			}
+			break;
+		case "DOWN":
+			if(PlaceItemsConfig.getBlackListedPlaceItemsBottom().contains(type.toString())) {
+				return true;
+			}
+			break;
+		case "NORTH":
+		case "SOUTH":
+		case "WEST":
+		case "EAST":
+			if(PlaceItemsConfig.getBlackListedPlaceItemsSides().contains(type.toString())) {
+				return true;
+			}
+			break;
+		default:
+			return false;
+		}
+		return false;
 	}
 	
 	public static boolean isItemLikeBlock(Material type){
@@ -85,6 +139,26 @@ public class PlaceItemsUtils {
 	
 	public static EulerAngle calcItemArmorStandHeadPos(Location location){
 		return new EulerAngle(Math.PI / 2, Math.toRadians(location.getYaw()), 0);
+	}
+	
+	
+	public static int getPropInexFromBlockFace(String blockFace) {
+		switch(blockFace) {
+			case "UP":
+				return 0;
+			case "DOWN":
+				return 1;
+			case "NORTH":
+				return 2;
+			case "SOUTH":
+				return 3;
+			case "WEST":
+				return 4;
+			case "EAST":
+				return 5;
+			default:
+				return 0;
+		}
 	}
 	
 	public static BlockFace getCardinalDirection(Location location) {
@@ -161,6 +235,29 @@ public class PlaceItemsUtils {
 		}
 	}
 	
+	public static Location getBestArmorStandItemRelitiveToLocationUsd(BlockFace blockFace, Location location){
+		switch(blockFace){
+			case NORTH:
+				return location.add(0.5, -1.75, 1.25);
+			case NORTH_EAST:
+				return location.add(0, -1.75, 1);
+			case EAST:
+				return location.add(-0.25, -1.75, 0.5);
+			case SOUTH_EAST:
+				return location.add(0, -1.75, 0);
+			case SOUTH:
+				return location.add(0.5, -1.75, -0.25);
+			case SOUTH_WEST:
+				return location.add(1, -1.75, 0);
+			case WEST:
+				return location.add(1.25, -1.75, 0.5);
+			case NORTH_WEST:
+				return location.add(1.0, -1.75, 1.0);
+			default:
+				return location;
+		}
+	}
+	
 	public static int removeInRadiusAroundPlayer(Location location, PlaceItemsManager manager, int radius){
 		
 		int count = 0;
@@ -168,9 +265,10 @@ public class PlaceItemsUtils {
 		
 		for(Entity e : entities){
 			if(e instanceof ArmorStand){
-				if(manager.containsProp(e.getLocation())){
-					manager.setPlacements(manager.getFromProp(e.getLocation()).getPlacer(), manager.getPlacements(manager.getFromProp(e.getLocation()).getPlacer()) - 1);
-					manager.removeProp(e.getLocation());
+				if(manager.containsProp(getPotentialPhysicalLocations(e.getLocation()), e.getLocation())){
+					PlaceItemsPlayerPlaceLocation pippl = manager.getPlayerPlaceFromProp(getPotentialPhysicalLocations(e.getLocation()), e.getLocation());
+					manager.setPlacements(pippl.getPlacer(), manager.getPlacements(pippl.getPlacer()) - 1);
+					manager.removeProp(getPotentialPhysicalLocations(e.getLocation()), e.getLocation());
 					count++;
 					e.remove();
 				}
@@ -190,8 +288,14 @@ public class PlaceItemsUtils {
 		
 		for(Block b : blocks) {
 			if(manager.containsPhysical(b.getLocation())){
-				manager.setPlacements(manager.getFromPhysical(b.getLocation()).getPlacer(), manager.getPlacements(manager.getFromPhysical(b.getLocation()).getPlacer()) - 1);
-				manager.removePhysical(b.getLocation());
+				AdvancedPlaceItemsLinkedLocation data = manager.getFromPhysical(b.getLocation());
+				for(PlaceItemsPlayerPlaceLocation pippl : data.getProps()) {
+					if(pippl == null) {
+						continue;
+					}
+					manager.setPlacements(pippl.getPlacer(), manager.getPlacements(pippl.getPlacer()) - 1);
+					manager.removePhysical(b.getLocation());
+				}
 				removes[0]++;
 			}
 		}
@@ -211,12 +315,23 @@ public class PlaceItemsUtils {
 		
 		for(Entity e : entities){
 			if(e instanceof ArmorStand){
-				if(manager.containsProp(e.getLocation())){
+				if(manager.containsProp(getPotentialPhysicalLocations(e.getLocation()), e.getLocation())){
 					return true;
 				}
 			}
 		}
 		return false;
+	}
+	
+	public static Location[] getPotentialPhysicalLocations(Location l) {
+		ArrayList<Block> blocks = getBlocks(l, 2);
+		Location[] locations = new Location[blocks.size()];
+		
+		for(int i = 0; i < blocks.size(); i++) {
+			locations[i] = blocks.get(i).getLocation();
+		}
+		
+		return locations;
 	}
 	
 	public static ArrayList<Block> getBlocks(Location location, int radius){
@@ -254,35 +369,27 @@ public class PlaceItemsUtils {
 	
 	public static void saveFile(Object object, File file){
 	    try{
-	      if(!file.exists()){
-	        file.createNewFile();
-	      }
-	      ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-	      oos.writeObject(object);
-	      oos.flush();
-	      oos.close();
-	    }
-	    catch (Exception e){
+	    	if(!file.exists()){
+	    		file.createNewFile();
+	    	}
+	    	ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+	    	oos.writeObject(object);
+	    	oos.flush();
+	    	oos.close();
+	    }catch (Exception e){
 	      e.printStackTrace();
 	    }
-	  }
+	 }
 	 
 	  public static Object loadFile(File file){
-	    try{
-	      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-	      Object object = ois.readObject();
-	      ois.close();
-	      return object;
-	    }
-	    catch (Exception e) {}
+		  try{
+			  ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			  Object object = ois.readObject();
+			  ois.close();
+			  return object;
+		  }catch (Exception e) {}
 	    return null;
 	  }
-	  
-	 
-		
-		
-		
-
 }
 
 

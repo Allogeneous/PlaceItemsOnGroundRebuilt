@@ -2,6 +2,8 @@ package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 
 import java.util.Collection;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,13 +17,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.util.EulerAngle;
 
-import net.md_5.bungee.api.ChatColor;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.AdvancedPlaceItemsLinkedLocation;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsPlayerPlaceLocation;
 
 public class PlaceItemsEvents implements Listener{
 	
@@ -43,135 +50,118 @@ public class PlaceItemsEvents implements Listener{
 	public void onPlayerPlace(PlayerInteractEvent e){
 		if(e.getHand() == EquipmentSlot.HAND) {
 			Player p = e.getPlayer();
-			
 			if(e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
 				return;
 			}
 			
+			if(e.getClickedBlock() == null) {
+				return;
+			}
+			
+			BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
+			Bukkit.getServer().getPluginManager().callEvent(bpe);
+			
+			if(bpe.isCancelled()) {
+				return;
+			}
+			
 			if(e.getAction() == Action.RIGHT_CLICK_BLOCK && isBlockey(p.getInventory().getItemInMainHand())) {
-				if(manager.containsPhysical(e.getClickedBlock().getLocation())) {
+				if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())) {
 					e.setCancelled(true);
 					return;
 				}
 			}
 			
-			if(manager.getPlaceToggled(p) && p.isSneaking() && e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getBlockFace() == BlockFace.UP){
+			
+			if(manager.getPlaceToggled(p) && p.isSneaking() && e.getAction() == Action.RIGHT_CLICK_BLOCK){
 				
-				e.setCancelled(true);
 				
-				if(!p.hasPermission("placeitems.place")) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items!");
-					return;
-				}
-				
-				if(PlaceItemsUtils.isBlacklisted(p.getInventory().getItemInMainHand().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place " + ChatColor.YELLOW + p.getInventory().getItemInMainHand().getType() + ChatColor.RED + "!");
-					return;
-				}
-				
-				if(manager.containsPhysical(e.getClickedBlock().getLocation())){
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place more than one item on a block!");
-					return;
-				}
-				
-				if(!isValidPlace(e.getClickedBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
-					return;
-				}
-				
-				if(PlaceItemsUtils.isSlab(e.getClickedBlock().getType()) || PlaceItemsUtils.isStairs(e.getClickedBlock().getType())) {
-					if(!versionHandler.isValidSlabOrStair(e.getClickedBlock())) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
+				switch(e.getBlockFace().toString()) {
+				case "UP":
+					if(!PlaceItemsConfig.isAllowTopPlacing()) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the top of blocks has been disabled!");
 						return;
 					}
-				}
-				
-				Location checkAbove = e.getClickedBlock().getLocation().add(0, 1, 0);
-				if(!PlaceItemsUtils.isPlaceIn(checkAbove.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + checkAbove.getBlock().getType() + ChatColor.RED + "!");
-					return;
-				}
-				
-				if(manager.getHasCustomPlaceCap(p)) {
-					if(manager.getMaxPlacements(p) != PlaceItemsManager.UNLIMITED && manager.getMaxPlacements(p) <= manager.getPlacements(p)){
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
-						return;
-					}
-				}else {
-					if(PlaceItemsConfig.getDefaultPlaceCap() != PlaceItemsManager.UNLIMITED) {
-						if(PlaceItemsConfig.getDefaultPlaceCap() <= manager.getPlacements(p)){
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+					if(!p.hasPermission("placeitems.place")) {
+						if(!p.hasPermission("placeitems.place.top")) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the top of blocks!");
 							return;
 						}
 					}
+					break;
+				case "DOWN":
+					if(!PlaceItemsConfig.isAllowBottomPlacing()) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the bottom of blocks has been disabled!");
+						return;
+					}
+					if(!p.hasPermission("placeitems.place")) {
+						if(!p.hasPermission("placeitems.place.bottom")) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the bottom of blocks!");
+							return;
+						}
+					}
+					break;
+				case "NORTH":
+				case "SOUTH":
+				case "WEST":
+				case "EAST":
+					if(!PlaceItemsConfig.isAllowSidePlacing()) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the sides of blocks has been disabled!");
+						return;
+					}
+					if(!p.hasPermission("placeitems.place")) {
+						if(!p.hasPermission("placeitems.place.sides")) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the sides of blocks!");
+							return;
+						}
+					}
+					break;
+				default:
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Error: Unknown blockface!");
+					e.setCancelled(true);
+					return;
+				}	
+					
+				
+				
+				if(PlaceItemsUtils.isBlacklisted(p.getInventory().getItemInMainHand().getType(), e.getBlockFace().toString())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place " + ChatColor.YELLOW + p.getInventory().getItemInMainHand().getType() + ChatColor.RED + "!");
+					e.setCancelled(true);
+					return;
+				}
+				
+				
+				if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())){
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place more than one item on one side of a block!");
+					e.setCancelled(true);
+					return;
+				}
+				
+				
+				if(!isValidPlace(e.getClickedBlock().getType(), e.getBlockFace())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
+					e.setCancelled(true);
+					return;
+				}
+				
+				if(PlaceItemsUtils.isSlab(e.getClickedBlock().getType())) {
+					if(!versionHandler.isValidSlab(e.getClickedBlock(), e.getBlockFace().toString())) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
+						e.setCancelled(true);
+						return;
+					}
+				}
+				
+				if(!handlePermissionCheck(p)) {
+					return;
 				}
 				
 			}else{
 				return;
 			}
+			e.setCancelled(true);
+			longAssPlacementCaseMethod(p, e.getClickedBlock(), e.getBlockFace());
 
-			if(isBlockey(p.getInventory().getItemInMainHand())){
-				if(PlaceItemsUtils.isSpecialCases2(p.getInventory().getItemInMainHand().getType())) {
-					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(e.getClickedBlock().getLocation().add(0.5, -0.6, 0.5), EntityType.ARMOR_STAND);
-					a.setVisible(false);
-					a.setGravity(false);
-					a.setBasePlate(false);
-					a.setInvulnerable(true);
-					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPosSpecialCases2(p.getEyeLocation()));
-					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
-				}else {
-					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(e.getClickedBlock().getLocation().add(0.5, -0.35, 0.5), EntityType.ARMOR_STAND);
-					a.setVisible(false);
-					a.setGravity(false);
-					a.setBasePlate(false);
-					a.setInvulnerable(true);
-					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPos(p.getEyeLocation()));
-					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
-				}
-				
-				if(p.getInventory().getItemInMainHand().getAmount() == 1) {
-					p.getInventory().setItemInMainHand(null);
-				}else {
-					p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-				}
-				updateArea(e.getClickedBlock().getLocation().clone().add(0.0, 2.0, 0.0));
-				manager.setPlacements(p, manager.getPlacements(p) + 1);
-				p.updateInventory();
-			}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-				if(PlaceItemsUtils.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
-					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), e.getClickedBlock().getLocation()), EntityType.ARMOR_STAND);
-					a.setVisible(false);
-					a.setGravity(false);
-					a.setBasePlate(false);
-					a.setInvulnerable(true);
-					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPosSpecialCases1(p.getEyeLocation()));
-					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
-				}else {
-					ArmorStand a = (ArmorStand) p.getWorld().spawnEntity(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), e.getClickedBlock().getLocation()), EntityType.ARMOR_STAND);
-					a.setVisible(false);
-					a.setGravity(false);
-					a.setBasePlate(false);
-					a.setInvulnerable(true);
-					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
-					manager.getPlacedItemLinkedLocations().add(new PlaceItemsLinkedLocation(p.getUniqueId(), e.getClickedBlock().getLocation(), a.getLocation()));
-				}
-				
-				p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-				if(p.getInventory().getItemInMainHand().getAmount() == 1) {
-					p.getInventory().setItemInMainHand(null);
-				}else {
-					p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-				}
-				updateArea(e.getClickedBlock().getLocation().clone().add(0.0, 2.0, 0.0));
-				manager.setPlacements(p, manager.getPlacements(p) + 1);
-				p.updateInventory();
-			}else {
-				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place " + ChatColor.YELLOW + p.getInventory().getItemInMainHand().getType() + ChatColor.RED + "!");
-			}
 		}
 	}
 	
@@ -183,8 +173,8 @@ public class PlaceItemsEvents implements Listener{
 	
 	}
 	
-	private boolean isValidPlace(Material type) {
-		if(!PlaceItemsUtils.isBlackListedPlaceItem(type)) {
+	private boolean isValidPlace(Material type, BlockFace blockFace) {
+		if(!PlaceItemsUtils.isBlackListedPlaceItem(type, blockFace.toString())) {
 			if(type.isBlock() && type.isSolid()) {
 				return true;
 			}
@@ -213,13 +203,22 @@ public class PlaceItemsEvents implements Listener{
 		if(e.getRightClicked() instanceof ArmorStand){
 			ArmorStand a = (ArmorStand) e.getRightClicked();
 			if(!a.isVisible() && !a.hasBasePlate() && !a.hasGravity() && a.isInvulnerable()){
-				if(manager.containsProp(a.getLocation())){
+				if(manager.containsProp(PlaceItemsUtils.getPotentialPhysicalLocations(a.getLocation()), a.getLocation())){
 					e.setCancelled(true);
 					Player p = e.getPlayer();
 					if(!p.hasPermission("placeitems.take")) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to take items!");
 						return;
 					}
+					
+					
+					PlaceItemsOnGroundBreakEvent bbe = new PlaceItemsOnGroundBreakEvent(manager.getFromProp(PlaceItemsUtils.getPotentialPhysicalLocations(a.getLocation()), a.getLocation()).getBlock(), e.getPlayer());
+					Bukkit.getServer().getPluginManager().callEvent(bbe);
+					
+					if(bbe.isCancelled()) {
+						return;
+					}
+					
 					ItemStack hem = a.getHelmet();
 					hem.setAmount(1);
 					if(p.getInventory().firstEmpty() != -1){
@@ -227,8 +226,11 @@ public class PlaceItemsEvents implements Listener{
 					}else{
 						p.getWorld().dropItemNaturally(e.getRightClicked().getLocation().clone().add(0, 1, 0), hem);
 					}
-					manager.setPlacements(manager.getFromProp(a.getLocation()).getPlacer(), manager.getPlacements(manager.getFromProp(a.getLocation()).getPlacer()) - 1);
-					manager.removeProp(a.getLocation());
+					
+					PlaceItemsPlayerPlaceLocation pippl = manager.getPlayerPlaceFromProp(PlaceItemsUtils.getPotentialPhysicalLocations(a.getLocation()), a.getLocation());
+					
+					manager.setPlacements(pippl.getPlacer(), manager.getPlacements(pippl.getPlacer()) - 1);
+					manager.removeProp(PlaceItemsUtils.getPotentialPhysicalLocations(a.getLocation()), a.getLocation());
 					a.remove();
 				}
 			}
@@ -237,39 +239,53 @@ public class PlaceItemsEvents implements Listener{
 	
 	@EventHandler
 	public void onPlayerTakeBreak(BlockBreakEvent e){
+		if(e instanceof PlaceItemsOnGroundBreakEvent) {
+			return;
+		}
 		if(e.isCancelled()) {
 			return;
 		}
+		
+		
 		if(manager.containsPhysical(e.getBlock().getLocation())){
+			
 			Player p = e.getPlayer();
 			if(!p.hasPermission("placeitems.take")) {
+				e.setCancelled(true);
 				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to take items!");
 				return;
 			}
-			Location look = manager.getFromPhysical(e.getBlock().getLocation()).getPropLoc();
-			Collection<Entity> armorstand = look.getWorld().getNearbyEntities(look, 0.01, 0.01, 0.01);
 			
-			ArmorStand a = null;
+			AdvancedPlaceItemsLinkedLocation physical = manager.getFromPhysical(e.getBlock().getLocation());
 			
-			for(Entity entity : armorstand){
-				if(entity instanceof ArmorStand){
-					a = (ArmorStand) entity;
-					break;
+			for(int i = 0; i < physical.getProps().length; i++) {
+				if(physical.getProps()[i] == null) {
+					continue;
 				}
-			}
-			
-			if(a != null){
-				if(!a.isVisible() && !a.hasBasePlate() && !a.hasGravity() && a.isInvulnerable()){
-					if(manager.containsProp(a.getLocation())){
+				Collection<Entity> armorstand = e.getBlock().getLocation().getWorld().getNearbyEntities(physical.getProps()[i].getLocation(), 0.001, 0.001, 0.001);
+				ArmorStand a = null;
+				
+				for(Entity entity : armorstand){
+					if(entity instanceof ArmorStand){
+						if(entity.getLocation().equals(physical.getProps()[i].getLocation())) {
+							a = (ArmorStand) entity;
+							break;
+						}
+					}
+				}
+				
+				if(a != null){
+					if(!a.isVisible() && !a.hasBasePlate() && !a.hasGravity() && a.isInvulnerable()){
 						ItemStack hem = a.getHelmet();
 						hem.setAmount(1);
 						p.getWorld().dropItemNaturally(e.getBlock().getLocation(), hem);
-						manager.setPlacements(manager.getFromProp(a.getLocation()).getPlacer(), manager.getPlacements(manager.getFromProp(a.getLocation()).getPlacer()) - 1);
-						manager.removeProp(a.getLocation());
+						PlaceItemsPlayerPlaceLocation pippl = manager.getPlayerPlaceFromProp(PlaceItemsUtils.getPotentialPhysicalLocations(a.getLocation()), a.getLocation());
+						manager.setPlacements(pippl.getPlacer(), manager.getPlacements(pippl.getPlacer()) - 1);
 						a.remove();
 					}
 				}
 			}
+			manager.removePhysical(e.getBlock().getLocation());
 		}
 	}
 	
@@ -286,5 +302,238 @@ public class PlaceItemsEvents implements Listener{
 				return;
 			}
 		}
+	}
+	
+	private void longAssPlacementCaseMethod(Player p, Block clickedBlock, BlockFace blockFace) {
+			if(blockFace == BlockFace.UP) {
+				Location checkAbove = clickedBlock.getLocation().add(0, 1, 0);
+				if(!PlaceItemsUtils.isPlaceIn(checkAbove.getBlock().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + checkAbove.getBlock().getType() + ChatColor.RED + "!");
+					return;
+				}
+				if(isBlockey(p.getInventory().getItemInMainHand())){
+					if(PlaceItemsUtils.isSpecialCases2(p.getInventory().getItemInMainHand().getType())) {
+						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.6, 0.5));
+						if(a == null) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							return;
+						}
+						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+						a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPosSpecialCases2(p.getEyeLocation()));
+						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+					}else {
+						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.35, 0.5));
+						if(a == null) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							return;
+						}
+						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+						a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPos(p.getEyeLocation()));
+						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+					}
+				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
+					if(PlaceItemsUtils.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
+						ArmorStand a = createArmorStand(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()));
+						if(a == null) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							return;
+						}
+						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+						a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPosSpecialCases1(p.getEyeLocation()));
+						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+					}else {
+						ArmorStand a = createArmorStand(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()));
+						if(a == null) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							return;
+						}
+						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+						a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
+						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+					}
+				}else {
+					return;
+				}	
+			}else if(blockFace == BlockFace.DOWN) {
+				if(isBlockey(p.getInventory().getItemInMainHand())){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -2.0, 0.5));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPos(p.getEyeLocation()));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
+					ArmorStand a = createArmorStand(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocationUsd(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+				}else {
+					return;
+				}	
+			}else if(blockFace == BlockFace.NORTH) {
+				if(isBlockey(p.getInventory().getItemInMainHand())){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.15, -0.325));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(new EulerAngle(0, Math.PI, 0));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
+				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.65, -0.325));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(new EulerAngle(0, Math.PI, 0));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+				}else {
+					return;
+				}	
+			}else if(blockFace == BlockFace.SOUTH) {
+				if(isBlockey(p.getInventory().getItemInMainHand())){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.15, 1.325));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
+				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.65, 1.325));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+				}else {
+					return;
+				}	
+			}else if(blockFace == BlockFace.WEST) {
+				if(isBlockey(p.getInventory().getItemInMainHand())){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(-0.325, -1.15, 0.5));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(new EulerAngle(0, Math.PI/2, 0));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
+				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(-0.325, -1.65, 0.5));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(new EulerAngle(0, Math.PI/2, 0));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+				}else {
+					return;
+				}	
+			}else if(blockFace == BlockFace.EAST) {
+				if(isBlockey(p.getInventory().getItemInMainHand())){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(1.325, -1.15, 0.5));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(new EulerAngle(0, (3*Math.PI)/2, 0));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
+				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(1.325, -1.65, 0.5));
+					if(a == null) {
+						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						return;
+					}
+					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+					a.setHeadPose(new EulerAngle(0, (3*Math.PI)/2, 0));
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+				}else {
+					return;
+				}	
+			}
+			if(p.getInventory().getItemInMainHand().getAmount() == 1) {
+				p.getInventory().setItemInMainHand(null);
+			}else {
+				p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+			}
+			updateArea(clickedBlock.getLocation().clone().add(0.0, 2.0, 0.0));
+			manager.setPlacements(p, manager.getPlacements(p) + 1);
+			p.updateInventory();	
+		
+		}
+	
+	private ArmorStand createArmorStand(Location location) {
+		Collection<Entity> near = location.getWorld().getNearbyEntities(location, 0.001, 0.001, 0.001);
+		
+		if(!near.isEmpty()) {
+			for(Entity entity : near){
+				if(entity instanceof ArmorStand){
+					if(location.getX() == entity.getLocation().getX() && location.getY() == entity.getLocation().getY() && location.getZ() == entity.getLocation().getZ()) {
+						return null;
+					}
+				}
+			}
+		}
+		
+		ArmorStand a = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+		a.setVisible(false);
+		a.setGravity(false);
+		a.setBasePlate(false);
+		a.setInvulnerable(true);
+		return a;
+	}
+	
+	private boolean handlePermissionCheck(Player p) {
+		for(PermissionAttachmentInfo attachmentInfo : p.getEffectivePermissions()) {
+		      if(attachmentInfo.getPermission().startsWith("placeitems.cap.")) {
+		    	  String permission = attachmentInfo.getPermission();
+		    	  String value = permission.substring(permission.lastIndexOf(".") + 1);
+		    	  int maxPlacements = 0;
+		    	  
+		    	  if(!value.equalsIgnoreCase("" + PlaceItemsManager.UNLIMITED_CHAR_1)) {
+		    		  try {
+		    			  maxPlacements = Integer.parseInt(value);
+		    		  }catch(Exception e) {
+		    			  p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have an error with your permission, using default settings!");
+		    			  break;
+		    		  }
+		    		if(maxPlacements != PlaceItemsManager.UNLIMITED && maxPlacements <= manager.getPlacements(p)){
+		  				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+		  				return false;
+		  			}else {
+		  				return true;
+		  			}
+		    	  }else {
+		    		  return true;
+		    	  }
+		      }
+		   }
+		
+		if(manager.getHasCustomPlaceCap(p)) {
+			if(manager.getMaxPlacements(p) != PlaceItemsManager.UNLIMITED && manager.getMaxPlacements(p) <= manager.getPlacements(p)){
+				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+				return false;
+			}
+		}else {
+			if(PlaceItemsConfig.getDefaultPlaceCap() != PlaceItemsManager.UNLIMITED) {
+				if(PlaceItemsConfig.getDefaultPlaceCap() <= manager.getPlacements(p)){
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }

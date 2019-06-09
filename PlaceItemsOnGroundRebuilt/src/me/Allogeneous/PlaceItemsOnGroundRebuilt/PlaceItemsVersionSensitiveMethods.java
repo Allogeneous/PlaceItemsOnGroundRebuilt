@@ -2,6 +2,7 @@ package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 
 
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
 
 public class PlaceItemsVersionSensitiveMethods {
@@ -12,23 +13,26 @@ public class PlaceItemsVersionSensitiveMethods {
 		this.version = version;
 	}
 	
-	public boolean isValidSlabOrStair(Block block) {
+	public boolean isValidSlab(Block block, String blockFace) {
 		if(!version.contains("1.9") && !version.contains("1.10") && !version.contains("1.11") && !version.contains("1.12")) {
-			return validSlabOrStair1_13up(block);
+			return validSlab1_13up(block, blockFace);
 		}else {
-			return validSlabOrStair1_12down(block);
+			return validSlab1_12down(block, blockFace);
 		}
 	}
 	
 	public boolean isItemey(ItemStack item){
 		if(!version.contains("1.9") && !version.contains("1.10") && !version.contains("1.11")) {
-			return isItemey1_12up(item);
+			if(version.contains("1.12") && !version.contains("1.12.2")) {
+				return isItemey1_12_1down(item);
+			}
+			return isItemey1_12_2up(item);
 		}else {
-			return isItemey1_11down(item);
+			return isItemey1_12_1down(item);
 		}
 	}
 	
-	private boolean isItemey1_12up(ItemStack item){
+	private boolean isItemey1_12_2up(ItemStack item){
 		if(item.getType().isItem()){
 			return true;
 		}
@@ -38,7 +42,7 @@ public class PlaceItemsVersionSensitiveMethods {
 		return false;
 	}
 	
-	private boolean isItemey1_11down(ItemStack item){
+	private boolean isItemey1_12_1down(ItemStack item){
 		if(!item.getType().isBlock()){
 			return true;
 		}
@@ -48,20 +52,27 @@ public class PlaceItemsVersionSensitiveMethods {
 		return false;
 	}
 	
-	private boolean validSlabOrStair1_13up(Block block) {
-		if(PlaceItemsUtils.isStairs(block.getType())) {
-			return block.getBlockData().getAsString().contains("half=top");
-		}else if(PlaceItemsUtils.isSlab(block.getType())){
-			return block.getBlockData().getAsString().contains("type=top") || block.getBlockData().getAsString().contains("type=double");
+	private boolean validSlab1_13up(Block block, String blockFace) {
+		if(PlaceItemsUtils.isSlab(block.getType())){
+			if(blockFace.equals(BlockFace.UP.toString())) {
+				return block.getBlockData().getAsString().contains("type=top") || block.getBlockData().getAsString().contains("type=double");
+			}else if(blockFace.equals(BlockFace.NORTH.toString()) || blockFace.equals(BlockFace.SOUTH.toString()) || blockFace.equals(BlockFace.WEST.toString()) || blockFace.equals(BlockFace.EAST.toString())) {
+				return block.getBlockData().getAsString().contains("type=double");
+			}else if(blockFace.equals(BlockFace.DOWN.toString())) {
+				return block.getBlockData().getAsString().contains("type=bottom") || block.getBlockData().getAsString().contains("type=double");
+			}
+			
 		}
 		return false;
 	}
 	
-	private boolean validSlabOrStair1_12down(Block block) {
-		if(PlaceItemsUtils.isStairs(block.getType())) {
-			return block.getState().getData().toString().contains("inverted");
-		}else if(PlaceItemsUtils.isSlab(block.getType())){
-			return block.getState().getData().toString().contains("inverted");
+	private boolean validSlab1_12down(Block block, String blockFace) {
+		if(PlaceItemsUtils.isSlab(block.getType())){
+			if(blockFace.equals(BlockFace.UP.toString())) {
+				return block.getState().getData().toString().contains("inverted");
+			}else if(blockFace.equals(BlockFace.DOWN.toString())) {
+				return !block.getState().getData().toString().contains("inverted");
+			}
 		}else if(PlaceItemsUtils.isLegacyDoubleSlab(block.getType())){
 			return true;
 		}

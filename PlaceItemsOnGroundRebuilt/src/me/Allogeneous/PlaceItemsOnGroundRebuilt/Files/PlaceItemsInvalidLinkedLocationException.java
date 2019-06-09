@@ -1,4 +1,4 @@
-package me.Allogeneous.PlaceItemsOnGroundRebuilt;
+package me.Allogeneous.PlaceItemsOnGroundRebuilt.Files;
 
 public class PlaceItemsInvalidLinkedLocationException extends Exception{
 
