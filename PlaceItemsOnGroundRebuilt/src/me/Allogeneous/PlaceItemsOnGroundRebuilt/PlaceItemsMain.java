@@ -16,7 +16,7 @@ public class PlaceItemsMain extends JavaPlugin{
 	private PlaceItemsManager manager;
 	private PlaceItemsLocationAutoSaver autoSaver;
 	private PlaceItemsVersionSensitiveMethods versionHandler;
-	private int configVersion = 4;
+	private int configVersion = 5;
 	
 	@Override
 	public void onEnable(){

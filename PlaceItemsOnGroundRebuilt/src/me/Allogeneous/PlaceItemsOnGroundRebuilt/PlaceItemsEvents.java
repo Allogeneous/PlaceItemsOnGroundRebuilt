@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -237,7 +238,7 @@ public class PlaceItemsEvents implements Listener{
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerTakeBreak(BlockBreakEvent e){
 		if(e instanceof PlaceItemsOnGroundBreakEvent) {
 			return;
@@ -245,6 +246,7 @@ public class PlaceItemsEvents implements Listener{
 		if(e.isCancelled()) {
 			return;
 		}
+		
 		
 		
 		if(manager.containsPhysical(e.getBlock().getLocation())){
@@ -306,9 +308,9 @@ public class PlaceItemsEvents implements Listener{
 	
 	private void longAssPlacementCaseMethod(Player p, Block clickedBlock, BlockFace blockFace) {
 			if(blockFace == BlockFace.UP) {
-				Location checkAbove = clickedBlock.getLocation().add(0, 1, 0);
-				if(!PlaceItemsUtils.isPlaceIn(checkAbove.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + checkAbove.getBlock().getType() + ChatColor.RED + "!");
+				Location check = clickedBlock.getLocation().add(0, 1, 0);
+				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
@@ -355,6 +357,11 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}	
 			}else if(blockFace == BlockFace.DOWN) {
+				Location check = clickedBlock.getLocation().add(0, -1, 0);
+				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					return;
+				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -2.0, 0.5));
 					if(a == null) {
@@ -377,6 +384,11 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}	
 			}else if(blockFace == BlockFace.NORTH) {
+				Location check = clickedBlock.getLocation().add(0, 0, -1);
+				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					return;
+				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.15, -0.325));
 					if(a == null) {
@@ -399,6 +411,11 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}	
 			}else if(blockFace == BlockFace.SOUTH) {
+				Location check = clickedBlock.getLocation().add(0, 0, 1);
+				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					return;
+				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.15, 1.325));
 					if(a == null) {
@@ -419,6 +436,11 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}	
 			}else if(blockFace == BlockFace.WEST) {
+				Location check = clickedBlock.getLocation().add(-1, 0, 0);
+				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					return;
+				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(-0.325, -1.15, 0.5));
 					if(a == null) {
@@ -441,6 +463,11 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}	
 			}else if(blockFace == BlockFace.EAST) {
+				Location check = clickedBlock.getLocation().add(1, 0, 0);
+				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					return;
+				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(1.325, -1.15, 0.5));
 					if(a == null) {
