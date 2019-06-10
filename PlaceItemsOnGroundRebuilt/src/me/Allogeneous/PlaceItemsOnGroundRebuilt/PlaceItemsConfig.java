@@ -168,6 +168,5 @@ public class PlaceItemsConfig {
 	public static void setIncludeBlocksThatCanMoveOrDisappear(boolean includeBlocksThatCanMoveOrDisappear) {
 		PlaceItemsConfig.includeBlocksThatCanMoveOrDisappear = includeBlocksThatCanMoveOrDisappear;
 	}
-	
 
 }

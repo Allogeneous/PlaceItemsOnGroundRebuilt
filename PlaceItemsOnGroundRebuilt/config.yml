@@ -18,48 +18,47 @@ allowSidePlacing: true
 #Allow item placing on the bottom of blocks
 allowBottomPlacing: true
 
+###################
+#BLACKLISTED ITEMS#
+###################
 
 #HOW TO CHANGE A LIST:
 #Add items to this list using ", TYPE" without quotes. Make sure all items on the list are on the same line. Here is a link to all item type names: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 #Note that if there are any items on here that are not in the current version of the server you are running, they will just be ignored. 
 #The lists that do not start with legacy have all items from 1.13 to 1.14. Lists that start with legacy will be used for versions older than 1.13
 
-###################
-#BLACKLISTED ITEMS#
-###################
-
 #This is a list of items that being placed on the groud has been disabled for with using this plugin.
-#The current items here are all items that have unconvential displays on armorstand heads and don't play nicely with the plugin so I would not recomend removing any of these.
+#The current items here are all items that have unconvential displays on armor stand heads and don't play nicely with the plugin so I would not recomend removing any of these.
 blacklistedItemsAll: WHITE_BED, ORANGE_BED, MAGENTA_BED, LIGHT_BLUE_BED, YELLOW_BED,
   LIME_BED, PINK_BED, GRAY_BED, LIGHT_GRAY_BED, CYAN_BED, PURPLE_BED, BLUE_BED, BROWN_BED,
   GREEN_BED, RED_BED, BLACK_BED, WHITE_BANNER, ORANGE_BANNER, MAGENTA_BANNER, LIGHT_BLUE_BANNER,
   YELLOW_BANNER, LIME_BANNER, PINK_BANNER, GRAY_BANNER, LIGHT_GRAY_BANNER, CYAN_BANNER,
   PURPLE_BANNER, BLUE_BANNER, BROWN_BANNER, GREEN_BANNER, RED_BANNER, BLACK_BANNER,
-  TRIDENT, SHIELD, RAIL
+  TRIDENT, SHIELD
 
 blacklistedItemsTop:
 
-blacklistedItemsSides: LEAD, BONE, END_ROD
+blacklistedItemsSides: END_ROD, LEAD, BONE
 
-blacklistedItemsBottom: LEAD, BONE, END_ROD, OAK_SLAB, SPRUCE_SLAB, BIRCH_SLAB, JUNGLE_SLAB,
+blacklistedItemsBottom: OAK_SLAB, SPRUCE_SLAB, BIRCH_SLAB, JUNGLE_SLAB,
   ACACIA_SLAB, DARK_OAK_SLAB, STONE_SLAB, SMOOTH_STONE_SLAB, SANDSTONE_SLAB, CUT_SANDSTONE_SLAB,
   PETRIFIED_OAK_SLAB, COBBLESTONE_SLAB, BRICK_SLAB, STONE_BRICK_SLAB, NETHER_BRICK_SLAB,
   QUARTZ_SLAB, RED_SANDSTONE_SLAB, CUT_RED_SANDSTONE_SLAB, PURPUR_SLAB, PRISMARINE_SLAB,
   PRISMARINE_BRICK_SLAB, DARK_PRISMARINE_SLAB, POLISHED_GRANITE_SLAB, SMOOTH_RED_SANDSTONE_SLAB,
   MOSSY_STONE_BRICK_SLAB, POLISHED_DIORITE_SLAB, MOSSY_COBBLESTONE_SLAB, END_STONE_BRICK_SLAB,
   SMOOTH_SANDSTONE_SLAB, SMOOTH_QUARTZ_SLAB, GRANITE_SLAB, ANDESITE_SLAB, RED_NETHER_BRICK_SLAB,
-  POLISHED_ANDESITE_SLAB, DIORITE_SLAB, DAYLIGHT_DETECTOR, STONE_PRESSURE_PLATE, OAK_PRESSURE_PLATE, SPRUCE_PRESSURE_PLATE,
+  POLISHED_ANDESITE_SLAB, DIORITE_SLAB, STONE_PRESSURE_PLATE, OAK_PRESSURE_PLATE, SPRUCE_PRESSURE_PLATE,
   BIRCH_PRESSURE_PLATE, JUNGLE_PRESSURE_PLATE, ACACIA_PRESSURE_PLATE, DARK_OAK_PRESSURE_PLATE,
-  LIGHT_WEIGHTED_PRESSURE_PLATE, HEAVY_WEIGHTED_PRESSURE_PLATE
+  LIGHT_WEIGHTED_PRESSURE_PLATE, HEAVY_WEIGHTED_PRESSURE_PLATE, END_ROD
 
-legacyBlacklistedItemsAll: BED, SHIELD, BANNER, RAIL
+legacyBlacklistedItemsAll: BED, SHIELD, BANNER
 
 legacyBlacklistedItemsTop:
 
-legacyBlacklistedItemsSides: LEASH, BONE, END_ROD
+legacyBlacklistedItemsSides: END_ROD, LEASH, BONE
 
-legacyBlacklistedItemsBottom: LEASH, BONE, END_ROD, PURPUR_SLAB, WOOD_STEP, STEP, STONE_SLAB2, DAYLIGHT_DETECTOR, 
-  GOLD_PLATE, WOOD_PLATE, IRON_PLATE, STONE_PLATE
+legacyBlacklistedItemsBottom: PURPUR_SLAB, WOOD_STEP, STEP, STONE_SLAB2, 
+  GOLD_PLATE, WOOD_PLATE, IRON_PLATE, STONE_PLATE, END_ROD
 
 #################
 #DO NOT PLACE ON#
@@ -158,11 +157,11 @@ legacyStairs: WOOD_STAIRS, SPRUCE_WOOD_STAIRS, BIRCH_WOOD_STAIRS, JUNGLE_WOOD_ST
 #SPECIAL CASES#
 ###############
 
-#There are some items in the game that behave like blocks when put on an armorstand head and some blocks that behave like items when put on an armorstand head!
+#There are some items in the game that behave like blocks when put on an armor stand head and some blocks that behave like items when put on an armor stand head!
 
 #If an item is sticking straight up when it is placed, adding it to this list should fix that
 itemLikeBlocks: BARRIER, TRIPWIRE_HOOK, DEAD_BUSH, BROWN_MUSHROOM, RED_MUSHROOM, LADDER,
-  TORCH, LEVER, RAILS, ACTIVATOR_RAIL, DETECTOR_RAIL, POWERED_RAIL, LADDER, VINE,
+  TORCH, LEVER, RAIL, ACTIVATOR_RAIL, DETECTOR_RAIL, POWERED_RAIL, LADDER, VINE,
   HOPPER, SEA_PICKLE, IRON_DOOR, OAK_DOOR, SPRUCE_DOOR, BIRCH_DOOR, JUNGLE_DOOR, ACACIA_DOOR,
   DARK_OAK_DOOR, REDSTONE_TORCH, COMPARATOR, REPEATER, IRON_BARS, DEAD_HORN_CORAL,
   DEAD_FIRE_CORAL, DEAD_BUBBLE_CORAL, DEAD_BRAIN_CORAL, HORN_CORAL, FIRE_CORAL, BUBBLE_CORAL,
@@ -202,4 +201,4 @@ placeIn: AIR, CAVE_AIR, WATER
 ##############
 #DO NOT TOUCH#
 ##############
-configVersion: 5 
+configVersion: 6 

@@ -25,11 +25,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.util.EulerAngle;
 
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.AdvancedPlaceItemsLinkedLocation;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsPlayerPlaceLocation;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.BlockBottomPositioningCases;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.BlockSidePositioningCases;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.BlockTopPositioningCases;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.PlaceItemsSpecialCases;
 
 public class PlaceItemsEvents implements Listener{
 	
@@ -46,7 +49,7 @@ public class PlaceItemsEvents implements Listener{
 		manager.makeNewPlayerFile(e.getPlayer());
 		manager.updateUsername(e.getPlayer());
 	}
-
+	
 	@EventHandler
 	public void onPlayerPlace(PlayerInteractEvent e){
 		if(e.getHand() == EquipmentSlot.HAND) {
@@ -59,6 +62,10 @@ public class PlaceItemsEvents implements Listener{
 				return;
 			}
 			
+			if(e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+				return;
+			}
+			
 			BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
 			Bukkit.getServer().getPluginManager().callEvent(bpe);
 			
@@ -66,7 +73,7 @@ public class PlaceItemsEvents implements Listener{
 				return;
 			}
 			
-			if(e.getAction() == Action.RIGHT_CLICK_BLOCK && isBlockey(p.getInventory().getItemInMainHand())) {
+			if(isBlockey(p.getInventory().getItemInMainHand())) {
 				if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())) {
 					e.setCancelled(true);
 					return;
@@ -74,9 +81,7 @@ public class PlaceItemsEvents implements Listener{
 			}
 			
 			
-			if(manager.getPlaceToggled(p) && p.isSneaking() && e.getAction() == Action.RIGHT_CLICK_BLOCK){
-				
-				
+			if(manager.getPlaceToggled(p) && p.isSneaking()){
 				switch(e.getBlockFace().toString()) {
 				case "UP":
 					if(!PlaceItemsConfig.isAllowTopPlacing()) {
@@ -238,7 +243,7 @@ public class PlaceItemsEvents implements Listener{
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerTakeBreak(BlockBreakEvent e){
 		if(e instanceof PlaceItemsOnGroundBreakEvent) {
 			return;
@@ -246,7 +251,6 @@ public class PlaceItemsEvents implements Listener{
 		if(e.isCancelled()) {
 			return;
 		}
-		
 		
 		
 		if(manager.containsPhysical(e.getBlock().getLocation())){
@@ -290,7 +294,7 @@ public class PlaceItemsEvents implements Listener{
 			manager.removePhysical(e.getBlock().getLocation());
 		}
 	}
-	
+
 	@EventHandler
 	public void onPistonPushPlacedItem(BlockPistonExtendEvent e) {
 		if(PlaceItemsUtils.placedItemsAreInRadius(e.getBlock().getLocation(), manager, 2)) {
@@ -314,17 +318,17 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
-					if(PlaceItemsUtils.isSpecialCases2(p.getInventory().getItemInMainHand().getType())) {
-						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.6, 0.5));
+					if(PlaceItemsSpecialCases.isSpecialCases2(p.getInventory().getItemInMainHand().getType())) {
+						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.6, 0.5), blockFace);
 						if(a == null) {
 							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-						a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPosSpecialCases2(p.getEyeLocation()));
+						a.setHeadPose(BlockTopPositioningCases.calcBlockArmorStandHeadPosSpecialCases2(p.getEyeLocation()));
 						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 					}else {
-						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.35, 0.5));
+						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.35, 0.5), blockFace);
 						if(a == null) {
 							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 							return;
@@ -334,17 +338,17 @@ public class PlaceItemsEvents implements Listener{
 						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 					}
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-					if(PlaceItemsUtils.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
-						ArmorStand a = createArmorStand(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()));
+					if(PlaceItemsSpecialCases.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
+						ArmorStand a = createArmorStand(BlockTopPositioningCases.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
 						if(a == null) {
 							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-						a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPosSpecialCases1(p.getEyeLocation()));
+						a.setHeadPose(PlaceItemsSpecialCases.calcItemArmorStandHeadPosSpecialCases1(p.getEyeLocation()));
 						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 					}else {
-						ArmorStand a = createArmorStand(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()));
+						ArmorStand a = createArmorStand(BlockTopPositioningCases.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
 						if(a == null) {
 							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 							return;
@@ -363,23 +367,34 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -2.0, 0.5));
+					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -2.0, 0.5), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
 					a.setHeadPose(PlaceItemsUtils.calcBlockArmorStandHeadPos(p.getEyeLocation()));
-					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-					ArmorStand a = createArmorStand(PlaceItemsUtils.getBestArmorStandItemRelitiveToLocationUsd(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()));
-					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
-						return;
+					if(PlaceItemsSpecialCases.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
+						ArmorStand a = createArmorStand(BlockBottomPositioningCases.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
+						if(a == null) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							return;
+						}
+						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+						a.setHeadPose(PlaceItemsSpecialCases.calcItemArmorStandHeadPosSpecialCases1(p.getEyeLocation()));
+						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
+					}else {
+						ArmorStand a = createArmorStand(BlockBottomPositioningCases.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
+						if(a == null) {
+							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							return;
+						}
+						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
+						a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
+						manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 					}
-					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(PlaceItemsUtils.calcItemArmorStandHeadPos(p.getEyeLocation()));
-					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 				}else {
 					return;
 				}	
@@ -390,22 +405,22 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.15, -0.325));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(new EulerAngle(0, Math.PI, 0));
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.65, -0.325));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(new EulerAngle(0, Math.PI, 0));
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 				}else {
 					return;
@@ -417,19 +432,21 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.15, 1.325));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -1.65, 1.325));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 				}else {
@@ -442,22 +459,22 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(-0.325, -1.15, 0.5));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(new EulerAngle(0, Math.PI/2, 0));
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(-0.325, -1.65, 0.5));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(new EulerAngle(0, Math.PI/2, 0));
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 				}else {
 					return;
@@ -469,22 +486,22 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(1.325, -1.15, 0.5));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(new EulerAngle(0, (3*Math.PI)/2, 0));
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);	
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
-					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(1.325, -1.65, 0.5));
+					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
-					a.setHeadPose(new EulerAngle(0, (3*Math.PI)/2, 0));
+					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
 					manager.addNew(p.getUniqueId(), clickedBlock.getLocation(), a.getLocation(), blockFace);
 				}else {
 					return;
@@ -501,7 +518,7 @@ public class PlaceItemsEvents implements Listener{
 		
 		}
 	
-	private ArmorStand createArmorStand(Location location) {
+	private ArmorStand createArmorStand(Location location, BlockFace blockFace) {
 		Collection<Entity> near = location.getWorld().getNearbyEntities(location, 0.001, 0.001, 0.001);
 		
 		if(!near.isEmpty()) {
@@ -513,6 +530,11 @@ public class PlaceItemsEvents implements Listener{
 				}
 			}
 		}
+		
+		if(blockFace == BlockFace.WEST || blockFace == BlockFace.EAST) {
+			location.setYaw(90f);
+		}
+		
 		
 		ArmorStand a = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
 		a.setVisible(false);

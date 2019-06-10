@@ -22,27 +22,6 @@ import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsPlayerPlaceLocat
 
 public class PlaceItemsUtils {
 	
-	public static final String[] SPECIAL_CASES_1 = {"LEAD", "LEASH", "BONE"};
-	public static final String[] SPECIAL_CASES_2 = {"END_ROD"};
-	
-	public static final boolean isSpecialCases1(Material type) {
-		for(String typeS1 : SPECIAL_CASES_1) {
-			if(typeS1.equals(type.toString())) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public static final boolean isSpecialCases2(Material type) {
-		for(String typeS2 : SPECIAL_CASES_2) {
-			if(typeS2.equals(type.toString())) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	public static boolean isBlacklisted(Material type, String blockFace){
 		if(PlaceItemsConfig.getBlackListedItemsAll().contains(type.toString())) {
 			return true;
@@ -124,23 +103,14 @@ public class PlaceItemsUtils {
 	public static boolean isLegacyDoubleSlab(Material type) {
 		return PlaceItemsConfig.getLegacyDoubleSlabs().contains(type.toString());
 	}
-	
+
 	public static EulerAngle calcBlockArmorStandHeadPos(Location location){
-         return new EulerAngle(0, Math.toRadians(location.getYaw()) + Math.PI, 0);
-	}
-	
-	public static EulerAngle calcBlockArmorStandHeadPosSpecialCases2(Location location){
-        return new EulerAngle((5*Math.PI/3) , Math.toRadians(location.getYaw()) + Math.PI, 0);
-	}
-	
-	public static EulerAngle calcItemArmorStandHeadPosSpecialCases1(Location location) {
-		return new EulerAngle((3*Math.PI / 2), Math.toRadians(location.getYaw()) - Math.PI, 0);
+        return new EulerAngle(0, Math.toRadians(location.getYaw()) + Math.PI, 0);
 	}
 	
 	public static EulerAngle calcItemArmorStandHeadPos(Location location){
 		return new EulerAngle(Math.PI / 2, Math.toRadians(location.getYaw()), 0);
 	}
-	
 	
 	public static int getPropInexFromBlockFace(String blockFace) {
 		switch(blockFace) {
@@ -189,74 +159,7 @@ public class PlaceItemsUtils {
         }
     }
 	
-	public static Location getBestArmorStandItemRelitiveToLocationSpecialCases1(BlockFace blockFace, Location location){
-		switch(blockFace){
-			case NORTH:
-				return location.add(0.5, -0.65, 0.6);
-			case NORTH_EAST:
-				return location.add(0.5, -0.65, 0.6);
-			case EAST:
-				return location.add(0.4, -0.65, 0.5);
-			case SOUTH_EAST:
-				return location.add(0.4, -0.65, 0.5);
-			case SOUTH:
-				return location.add(0.5, -0.65, 0.4);
-			case SOUTH_WEST:
-				return location.add(0.5, -0.65, 0.4);
-			case WEST:
-				return location.add(0.6, -0.65, 0.5);
-			case NORTH_WEST:
-				return location.add(0.6, -0.65, 0.5);
-			default:
-				return location;
-		}
-	}
 	
-	public static Location getBestArmorStandItemRelitiveToLocation(BlockFace blockFace, Location location){
-		switch(blockFace){
-			case NORTH:
-				return location.add(0.5, -0.65, 1.25);
-			case NORTH_EAST:
-				return location.add(0, -0.65, 1);
-			case EAST:
-				return location.add(-0.25, -0.65, 0.5);
-			case SOUTH_EAST:
-				return location.add(0, -0.65, 0);
-			case SOUTH:
-				return location.add(0.5, -0.65, -0.25);
-			case SOUTH_WEST:
-				return location.add(1, -0.65, 0);
-			case WEST:
-				return location.add(1.25, -0.65, 0.5);
-			case NORTH_WEST:
-				return location.add(1.0, -0.65, 1.0);
-			default:
-				return location;
-		}
-	}
-	
-	public static Location getBestArmorStandItemRelitiveToLocationUsd(BlockFace blockFace, Location location){
-		switch(blockFace){
-			case NORTH:
-				return location.add(0.5, -1.75, 1.25);
-			case NORTH_EAST:
-				return location.add(0, -1.75, 1);
-			case EAST:
-				return location.add(-0.25, -1.75, 0.5);
-			case SOUTH_EAST:
-				return location.add(0, -1.75, 0);
-			case SOUTH:
-				return location.add(0.5, -1.75, -0.25);
-			case SOUTH_WEST:
-				return location.add(1, -1.75, 0);
-			case WEST:
-				return location.add(1.25, -1.75, 0.5);
-			case NORTH_WEST:
-				return location.add(1.0, -1.75, 1.0);
-			default:
-				return location;
-		}
-	}
 	
 	public static int removeInRadiusAroundPlayer(Location location, PlaceItemsManager manager, int radius){
 		

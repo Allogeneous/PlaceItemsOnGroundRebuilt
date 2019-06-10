@@ -16,7 +16,7 @@ public class PlaceItemsTabCompleter implements TabCompleter{
 	public List<String> onTabComplete(CommandSender sender, Command command, String commandLable, String[] args) {
 		if(command.getName().equalsIgnoreCase("placeitems")){
 			if(args.length == 1){
-				return Arrays.asList(new String[]{"help", "toggle", "set", "clear", "reload", "restorecap", "configname", "purge"});
+				return Arrays.asList(new String[]{"help", "toggle", "siderotation", "set", "clear", "reload", "restorecap", "configname", "purge"});
 			}
 			if(args.length == 2) {
 				if(args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("restorecap")) {
@@ -28,6 +28,9 @@ public class PlaceItemsTabCompleter implements TabCompleter{
 				}
 				if(args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("purge")) {
 					return Arrays.asList(new String[]{"1", "10", "100", "250"});
+				}
+				if(args[0].equalsIgnoreCase("siderotation")) {
+					return Arrays.asList(new String[]{"0", "1", "2", "3", "4", "5", "6", "7"});
 				}
 			}
 			

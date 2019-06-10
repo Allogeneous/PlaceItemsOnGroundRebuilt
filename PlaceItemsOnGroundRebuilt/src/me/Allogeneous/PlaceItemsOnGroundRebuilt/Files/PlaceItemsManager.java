@@ -2,6 +2,7 @@ package me.Allogeneous.PlaceItemsOnGroundRebuilt.Files;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
@@ -27,9 +28,11 @@ public class PlaceItemsManager {
 	
 	private JavaPlugin plugin;
 	private TreeMap<PlaceItemsPhysicalLocation, AdvancedPlaceItemsLinkedLocation> placedItemLinkedLocations;
+	private HashMap<UUID, Integer> playerRotationPositions;
 	
 	public PlaceItemsManager(JavaPlugin plugin){
 		placedItemLinkedLocations = new TreeMap<PlaceItemsPhysicalLocation, AdvancedPlaceItemsLinkedLocation>();
+		playerRotationPositions = new HashMap<UUID, Integer>();
 		this.plugin = plugin;
 		loadInitialData();
 	}
@@ -538,6 +541,21 @@ public class PlaceItemsManager {
 			}
 		}
 		return null;
+	}
+
+	public HashMap<UUID, Integer> getPlayerRotationPositions() {
+		return playerRotationPositions;
+	}
+
+	public void setPlayerRotationPositions(HashMap<UUID, Integer> playerRotationPositions) {
+		this.playerRotationPositions = playerRotationPositions;
+	}
+	
+	public int getSideRotation(Player player) {
+		if(playerRotationPositions.containsKey(player.getUniqueId())) {
+			return playerRotationPositions.get(player.getUniqueId());
+		}
+		return 0;
 	}
 
 }

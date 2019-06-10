@@ -35,6 +35,9 @@ public class PlaceItemsCommands implements CommandExecutor{
 						if(sender.hasPermission("placeitems.toggle")) {
 							sender.sendMessage(ChatColor.YELLOW  +"/placeitems toggle" + ChatColor.AQUA + " - toggles the ability for a player to sneak and place items on the ground");
 						}
+						if(sender.hasPermission("placeitems.siderotation")) {
+							sender.sendMessage(ChatColor.YELLOW  +"/placeitems siderotation <0-7>" + ChatColor.AQUA + " - set the position that items placed on their side will be rotated at.");
+						}
 						if(sender.hasPermission("placeitems.set")) {
 							sender.sendMessage(ChatColor.YELLOW  +"/placeitems set <name> <amount>" + ChatColor.AQUA + " - sets the amount of items a player can set on the ground (use a \"u\" in place of the amount for unlimited)");
 						}
@@ -109,7 +112,7 @@ public class PlaceItemsCommands implements CommandExecutor{
 								if(amount.length() == 1){
 									char c = amount.charAt(0);
 									if(c != PlaceItemsManager.UNLIMITED_CHAR_1 && c != PlaceItemsManager.UNLIMITED_CHAR_2){
-										sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Invalid cap number! Use " + ChatColor.YELLOW + " u " + ChatColor.AQUA + "for unlimited.");
+										sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Invalid cap number! Use " + ChatColor.YELLOW + " u " + ChatColor.RED + "for unlimited.");
 										return true;
 									}else{
 										unltd = true;
@@ -136,6 +139,35 @@ public class PlaceItemsCommands implements CommandExecutor{
 							}else {
 								sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + target.getName() + "'s file based item placement cap has been set to " + ChatColor.GREEN + numberAmount + "!");
 							}
+						}
+					}else {
+						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission use that command!");
+					}
+					return true;
+				}
+				
+				if(arg.equalsIgnoreCase("siderotation")) {
+					if (sender.hasPermission("placeitems.siderotation")){
+						if(sender instanceof Player) {
+							if(args.length == 2){
+								Player player = (Player) sender;
+								int rotation = 0;
+								try {
+									rotation = Integer.parseInt(args[1]);
+									if(rotation < 0 || rotation > 7) {
+										sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Invalid rotation number! Use the numbers " + ChatColor.YELLOW + "0 - 7" + ChatColor.RED + "!");
+										return true;
+									}
+								}catch(Exception e) {
+									sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Invalid rotation number! Use the numbers " + ChatColor.YELLOW + "0 - 7" + ChatColor.RED + "!");
+									return true;
+								}
+								
+								manager.getPlayerRotationPositions().put(player.getUniqueId(), rotation);
+								sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "Your side rotation position has been set to " + ChatColor.GREEN + rotation + ChatColor.AQUA + "!");
+							}
+						}else {
+							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You must be a player to send that command!");
 						}
 					}else {
 						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission use that command!");
