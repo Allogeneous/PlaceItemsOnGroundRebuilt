@@ -35,6 +35,9 @@ public class PlaceItemsCommands implements CommandExecutor{
 						if(sender.hasPermission("placeitems.toggle")) {
 							sender.sendMessage(ChatColor.YELLOW  +"/placeitems toggle" + ChatColor.AQUA + " - toggles the ability for a player to sneak and place items on the ground");
 						}
+						if(sender.hasPermission("placeitems.rightclicktoggle")) {
+							sender.sendMessage(ChatColor.YELLOW  +"/placeitems rightclicktoggle" + ChatColor.AQUA + " - toggles the ability for a player to pick up placed items by right clicking");
+						}
 						if(sender.hasPermission("placeitems.siderotation")) {
 							sender.sendMessage(ChatColor.YELLOW  +"/placeitems siderotation <0-7>" + ChatColor.AQUA + " - set the position that items placed on their side will be rotated at.");
 						}
@@ -75,6 +78,26 @@ public class PlaceItemsCommands implements CommandExecutor{
 							}else{
 								manager.setPlaceToggled(p, false);
 								p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You can no longer place items!");
+							}
+						}else {
+							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You must be a player to send that command!");
+						}
+					}else {
+						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to use that command!");
+					}
+					return true;
+				}
+				
+				if(arg.equalsIgnoreCase("rightclicktoggle")){ 
+					if(sender.hasPermission("placeitems.rightclicktoggle")){
+						if(sender instanceof Player) {
+							Player p = (Player) sender;
+							if(!manager.getRightClickPickupToggled(p)){
+								manager.setRightClickPickupToggled(p, true);
+								p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.GREEN + "You can now right click to pickup items!");
+							}else{
+								manager.setRightClickPickupToggled(p, false);
+								p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You can no longer right click to pickup items!");
 							}
 						}else {
 							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You must be a player to send that command!");
@@ -163,7 +186,12 @@ public class PlaceItemsCommands implements CommandExecutor{
 									return true;
 								}
 								
-								manager.getPlayerRotationPositions().put(player.getUniqueId(), rotation);
+								if(manager.getPlayerRotationPositions().containsKey(player.getUniqueId()) && rotation == 0) {
+									manager.getPlayerRotationPositions().remove(player.getUniqueId());
+								}else {
+									manager.getPlayerRotationPositions().put(player.getUniqueId(), rotation);
+								}
+								
 								sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "Your side rotation position has been set to " + ChatColor.GREEN + rotation + ChatColor.AQUA + "!");
 							}
 						}else {

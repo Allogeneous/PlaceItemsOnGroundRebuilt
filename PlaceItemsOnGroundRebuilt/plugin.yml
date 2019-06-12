@@ -1,5 +1,5 @@
 name: PlaceItemsOnGroundRebuilt
-version: 1.1.2b
+version: 1.0.0
 api-version: 1.13
 author: Allogeneous
 main: me.Allogeneous.PlaceItemsOnGroundRebuilt.PlaceItemsMain
@@ -15,6 +15,9 @@ permissions:
         default: true
     placeitems.toggle:
         description: Allows usage of /placeitems toggle
+        default: true
+    placeitems.rightclicktoggle:
+        description: Allows usage of /placeitems rightclicktoggle
         default: true
     placeitems.siderotation:
         description: Allows usage of /placeitems siderotation

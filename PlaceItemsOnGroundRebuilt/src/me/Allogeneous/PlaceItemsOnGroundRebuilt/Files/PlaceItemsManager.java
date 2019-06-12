@@ -141,6 +141,7 @@ public class PlaceItemsManager {
 					newPlayerData.addDefault("hasCustomPlaceCap", false);
 					newPlayerData.addDefault("ammountPlaced", 0);
 					newPlayerData.addDefault("placeToggled", false);
+					newPlayerData.addDefault("rightClickPickupToggled", true);
 					newPlayerData.options().copyDefaults(true);
 					try {
 						newPlayerData.save(data);
@@ -386,6 +387,73 @@ public class PlaceItemsManager {
 	public boolean getPlaceToggled(UUID uuid){
 		FileConfiguration file = getDataFile(uuid);
 		return file.getBoolean("placeToggled", false);
+	}
+	
+	public void setRightClickPickupToggled(Player p, boolean on){
+		FileConfiguration file = getDataFile(p);
+		if(file.contains("rightClickPickupToggled")) {
+			file.set("rightClickPickupToggled", on);
+		}else {
+			file.addDefault("rightClickPickupToggled", true);
+			file.set("rightClickPickupToggled", on);
+		}
+		try {
+			file.options().copyDefaults(true);
+			file.save(rawFile(p));
+		} catch (IOException e) {
+			plugin.getLogger().info("Unable to save player config file for UUID: " + p.getUniqueId().toString());
+			e.printStackTrace();
+		}
+	}
+	
+	public void setRightClickPickupToggled(UUID uuid, boolean on){
+		FileConfiguration file = getDataFile(uuid);
+		if(file.contains("rightClickPickupToggled")) {
+			file.set("rightClickPickupToggled", true);
+		}else {
+			file.addDefault("rightClickPickupToggled", on);
+			file.set("rightClickPickupToggled", on);
+		}
+		try {
+			file.save(rawFile(uuid));
+		} catch (IOException e) {
+			plugin.getLogger().info("Unable to save player config file for UUID: " + uuid.toString());
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean getRightClickPickupToggled(Player p){
+		FileConfiguration file = getDataFile(p);
+		if(file.contains("rightClickPickupToggled")) {
+			return file.getBoolean("rightClickPickupToggled", true);
+		}else {
+			file.addDefault("rightClickPickupToggled", true);
+			file.set("rightClickPickupToggled", true);
+			try {
+				file.save(rawFile(p));
+			} catch (IOException e) {
+				plugin.getLogger().info("Unable to save player config file for UUID: " + p.getUniqueId().toString());
+				e.printStackTrace();
+			}
+			return true;
+		}
+	}
+	
+	public boolean getRightClickPickupToggled(UUID uuid){
+		FileConfiguration file = getDataFile(uuid);
+		if(file.contains("rightClickPickupToggled")) {
+			return file.getBoolean("rightClickPickupToggled", true);
+		}else {
+			file.addDefault("rightClickPickupToggled", true);
+			file.set("rightClickPickupToggled", true);
+			try {
+				file.save(rawFile(uuid));
+			} catch (IOException e) {
+				plugin.getLogger().info("Unable to save player config file for UUID: " + uuid.toString());
+				e.printStackTrace();
+			}
+			return true;
+		}
 	}
 	
 	public TreeMap<PlaceItemsPhysicalLocation, AdvancedPlaceItemsLinkedLocation> getPlacedItemLinkedLocations() {

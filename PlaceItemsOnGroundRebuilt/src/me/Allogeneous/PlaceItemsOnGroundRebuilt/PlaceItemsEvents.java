@@ -212,6 +212,9 @@ public class PlaceItemsEvents implements Listener{
 				if(manager.containsProp(PlaceItemsUtils.getPotentialPhysicalLocations(a.getLocation()), a.getLocation())){
 					e.setCancelled(true);
 					Player p = e.getPlayer();
+					if(!manager.getRightClickPickupToggled(p)) {
+						return;
+					}
 					if(!p.hasPermission("placeitems.take")) {
 						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to take items!");
 						return;
