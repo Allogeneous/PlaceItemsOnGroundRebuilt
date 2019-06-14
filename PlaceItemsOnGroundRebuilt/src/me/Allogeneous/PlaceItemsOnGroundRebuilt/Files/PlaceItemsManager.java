@@ -63,18 +63,18 @@ public class PlaceItemsManager {
 			plugin.getLogger().warning("Unable to make plugin locations folder!");
 		}else{
 			try{
-				if(PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + "\\data", "Locations.dat")) instanceof TreeMap<?, ?>) {
+				if(PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data", "Locations.dat")) instanceof TreeMap<?, ?>) {
 					TreeMap<String, String> serializableLinkedLocations;
-					serializableLinkedLocations = (TreeMap<String, String>) PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + "\\data", "Locations.dat"));
+					serializableLinkedLocations = (TreeMap<String, String>) PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data", "Locations.dat"));
 					unserializeLocationData(serializableLinkedLocations);
-				}else if(PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + "\\data", "Locations.dat")) instanceof LinkedList<?>) {
+				}else if(PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data", "Locations.dat")) instanceof LinkedList<?>) {
 					LinkedList<String> serializableLinkedLocations;
-					serializableLinkedLocations = (LinkedList<String>) PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + "\\data", "Locations.dat"));
+					serializableLinkedLocations = (LinkedList<String>) PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data", "Locations.dat"));
 					unserializeLocationDataOld(serializableLinkedLocations);
 				}
 			}catch(Exception e){
 				TreeMap<String, String> serializableLinkedLocations;
-				serializableLinkedLocations = (TreeMap<String, String>) PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + "\\data", "Locations.dat"));
+				serializableLinkedLocations = (TreeMap<String, String>) PlaceItemsUtils.loadFile(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data", "Locations.dat"));
 				unserializeLocationData(serializableLinkedLocations);
 				plugin.getLogger().info("Location data not found... creating new data");
 			}
@@ -124,6 +124,13 @@ public class PlaceItemsManager {
 	
 		PlaceItemsUtils.saveFile(serializableLinkedLocations, new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data", "Locations.dat"));
 	}
+	
+	/*public void debug(){
+		System.out.println(this.placedItemLinkedLocations.entrySet().size());
+		for(Entry<PlaceItemsPhysicalLocation, AdvancedPlaceItemsLinkedLocation> entry : this.placedItemLinkedLocations.entrySet()){
+			System.out.println(entry.getKey().getWorld() + "," + entry.getKey().getX() + "," + entry.getKey().getY() + "," + entry.getKey().getZ());
+		}
+	}*/
 		
 	/*
 	 * Creates a new player yml file for a player when they join for the first time

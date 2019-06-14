@@ -67,7 +67,13 @@ public class PlaceItemsCommands implements CommandExecutor{
 					}
 					return true;
 				}
-					
+				
+				/*	
+				if(arg.equalsIgnoreCase("debug")){ 
+					manager.debug();
+				}
+				*/
+				
 				if(arg.equalsIgnoreCase("toggle")){ 
 					if(sender.hasPermission("placeitems.toggle")){
 						if(sender instanceof Player) {
