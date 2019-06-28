@@ -9,14 +9,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsLocationAutoSaver;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlotSquared.PlotClearEventListener;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Threads.PlaceItemsUpdateChecker;
 
 
 public class PlaceItemsMain extends JavaPlugin{
 
+	public boolean mcMMO = false;
+	
 	private PlaceItemsManager manager;
 	private PlaceItemsLocationAutoSaver autoSaver;
 	private PlaceItemsVersionSensitiveMethods versionHandler;
-	private int configVersion = 6;
+	private int configVersion = 7;
 	
 	@Override
 	public void onEnable(){
@@ -27,7 +31,7 @@ public class PlaceItemsMain extends JavaPlugin{
 		
 		
 		manager = new PlaceItemsManager(this);
-		Bukkit.getPluginManager().registerEvents(new PlaceItemsEvents(manager, versionHandler), this);
+		Bukkit.getPluginManager().registerEvents(new PlaceItemsEvents(this, manager, versionHandler), this);
 		this.getCommand("placeitems").setExecutor(new PlaceItemsCommands(this, manager));
 		this.getCommand("placeitems").setTabCompleter(new PlaceItemsTabCompleter());
 		if(PlaceItemsConfig.useLocationAutoSave()){
@@ -41,7 +45,19 @@ public class PlaceItemsMain extends JavaPlugin{
 		
 		PlaceItemsUpdateChecker updateChecker = new PlaceItemsUpdateChecker(this, this.getDescription().getVersion());
 		updateChecker.runTaskTimerAsynchronously(this, 0, 60 * 1200);
-
+		
+		if(PlaceItemsConfig.isPlotSquaredClear()) {
+			if(Bukkit.getPluginManager().isPluginEnabled("PlotSquared")) {
+				getLogger().info("PlotSquared detected, enabling features!");
+				Bukkit.getPluginManager().registerEvents(new PlotClearEventListener(this, manager), this);
+			}
+		}
+		
+		if(Bukkit.getPluginManager().isPluginEnabled("mcMMO")) {
+			getLogger().info("mcMMO detected, applying compatibility fix!");
+			mcMMO = true;
+		}
+		
 	}
 	
 	@Override
@@ -81,7 +97,9 @@ public class PlaceItemsMain extends JavaPlugin{
 		PlaceItemsConfig.setAllowTopPlacing(getConfig().getBoolean("allowTopPlacing", true));
 		PlaceItemsConfig.setAllowSidePlacing(getConfig().getBoolean("allowSidePlacing", true));
 		PlaceItemsConfig.setAllowBottomPlacing(getConfig().getBoolean("allowBottomPlacing", true));
-		PlaceItemsConfig.setIncludeBlocksThatCanMoveOrDisappear((getConfig().getBoolean("includeBlocksThatCanMoveOrDisappear", false)));
+		PlaceItemsConfig.setIncludeBlocksThatCanMoveOrDisappear(getConfig().getBoolean("includeBlocksThatCanMoveOrDisappear", false));
+		
+		PlaceItemsConfig.setPlotSquaredClear(getConfig().getBoolean("plotSquaredClear", false));
 		
 		if(versionHandler.isLegacy() && PlaceItemsConfig.isForceLegacy()) {
 			getLogger().info("Legacy server version detected... loading proper config lists.");

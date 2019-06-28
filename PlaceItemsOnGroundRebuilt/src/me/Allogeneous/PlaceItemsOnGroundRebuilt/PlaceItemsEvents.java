@@ -33,15 +33,20 @@ import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.BlockB
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.BlockSidePositioningCases;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.BlockTopPositioningCases;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlacementPositioningCases.PlaceItemsSpecialCases;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.mcMMO.McMMOPlacementEventManager;
 
 public class PlaceItemsEvents implements Listener{
 	
+	private PlaceItemsMain plugin;
 	private PlaceItemsManager manager;
 	private PlaceItemsVersionSensitiveMethods versionHandler;
+	private McMMOPlacementEventManager mcMMOpeh;
 	
-	public PlaceItemsEvents(PlaceItemsManager manager, PlaceItemsVersionSensitiveMethods versionHandler){
+	public PlaceItemsEvents(PlaceItemsMain plugin, PlaceItemsManager manager, PlaceItemsVersionSensitiveMethods versionHandler){
+		this.plugin = plugin;
 		this.manager = manager;
 		this.versionHandler = versionHandler;
+		this.mcMMOpeh = new McMMOPlacementEventManager();
 	}
 	
 	@EventHandler
@@ -65,13 +70,23 @@ public class PlaceItemsEvents implements Listener{
 			if(e.getAction() != Action.RIGHT_CLICK_BLOCK) {
 				return;
 			}
-			
-			BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
-			Bukkit.getServer().getPluginManager().callEvent(bpe);
-			
-			if(bpe.isCancelled()) {
-				return;
+			if(plugin.mcMMO) {
+				boolean value = mcMMOpeh.handlePlacementDataPrefire(e.getClickedBlock());
+				BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
+				Bukkit.getServer().getPluginManager().callEvent(bpe);
+				mcMMOpeh.handlePlacementDataPostfire(e.getClickedBlock(), value);
+				if(bpe.isCancelled()) {
+					return;
+				}
+			}else {
+				BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
+				Bukkit.getServer().getPluginManager().callEvent(bpe);
+				if(bpe.isCancelled()) {
+					return;
+				}
 			}
+			
+			
 			
 			if(isBlockey(p.getInventory().getItemInMainHand())) {
 				if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())) {
@@ -276,7 +291,7 @@ public class PlaceItemsEvents implements Listener{
 				
 				for(Entity entity : armorstand){
 					if(entity instanceof ArmorStand){
-						if(entity.getLocation().equals(physical.getProps()[i].getLocation())) {
+						if(entity.getLocation().getWorld().equals(physical.getProps()[i].getLocation().getWorld()) && entity.getLocation().getX() == physical.getProps()[i].getLocation().getX() && entity.getLocation().getY() == physical.getProps()[i].getLocation().getY() && entity.getLocation().getZ() == physical.getProps()[i].getLocation().getZ()) {
 							a = (ArmorStand) entity;
 							break;
 						}

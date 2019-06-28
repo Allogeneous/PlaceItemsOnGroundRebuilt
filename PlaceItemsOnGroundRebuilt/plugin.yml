@@ -1,6 +1,7 @@
 name: PlaceItemsOnGroundRebuilt
-version: 1.0.1
+version: 1.0.2
 api-version: 1.13
+softdepend: [PlotSquared, mcMMO]
 author: Allogeneous
 main: me.Allogeneous.PlaceItemsOnGroundRebuilt.PlaceItemsMain
 
@@ -54,4 +55,7 @@ permissions:
         default: op
     placeitems.purge:
         description: Allows user to purge placed items up to 250 blocks away with /placeitems purge
+        default: op
+    placeitems.playerdata:
+        description: Allows usage of /placeitems playerdata to directly manipulate the player's data file
         default: op

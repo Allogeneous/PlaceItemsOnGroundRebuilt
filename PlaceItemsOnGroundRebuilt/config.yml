@@ -18,6 +18,12 @@ allowSidePlacing: true
 #Allow item placing on the bottom of blocks
 allowBottomPlacing: true
 
+#######################
+#EXPERIMENTAL FEATURES#
+#######################
+
+plotSquaredClear: false
+
 ###################
 #BLACKLISTED ITEMS#
 ###################
@@ -201,4 +207,4 @@ placeIn: AIR, CAVE_AIR, WATER
 ##############
 #DO NOT TOUCH#
 ##############
-configVersion: 6 
+configVersion: 7 

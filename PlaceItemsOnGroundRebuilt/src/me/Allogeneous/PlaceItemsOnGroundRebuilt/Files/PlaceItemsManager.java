@@ -156,7 +156,6 @@ public class PlaceItemsManager {
 						plugin.getLogger().info("Unable to save player config file for UUID: " + p.getUniqueId());
 						e.printStackTrace();
 					}
-				
 			}
 		}
 	}
@@ -364,6 +363,16 @@ public class PlaceItemsManager {
 		}
 	}
 	
+	public int getRawMaxPlacements(Player p){
+		FileConfiguration file = getDataFile(p);
+		return file.getInt("placeCap", 0);
+	}
+	
+	public int getRawMaxPlacements(UUID uuid){
+		FileConfiguration file = getDataFile(uuid);
+		return file.getInt("placeCap", 0);
+	}
+	
 	public void setPlaceToggled(Player p, boolean on){
 		FileConfiguration file = getDataFile(p);
 		file.set("placeToggled", on);
@@ -503,6 +512,22 @@ public class PlaceItemsManager {
 				pilli.remove();
 			}
 		}
+	}
+	
+	public int getPlacementCountFromLocationData(UUID uuid){
+		int count = 0;
+		Iterator<Entry<PlaceItemsPhysicalLocation, AdvancedPlaceItemsLinkedLocation>> pilli = this.placedItemLinkedLocations.entrySet().iterator();
+		while(pilli.hasNext()){
+			Entry<PlaceItemsPhysicalLocation, AdvancedPlaceItemsLinkedLocation> pill = pilli.next();
+			for(int i = 0; i < pill.getValue().getProps().length; i++) {
+				if(pill.getValue().getProps()[i] != null) {
+					if(pill.getValue().getProps()[i].getPlacer().equals(uuid)) {
+						count++;
+					}
+				}
+			}
+		}
+		return count;
 	}
 	
 	public void removePhysical(Location physical){

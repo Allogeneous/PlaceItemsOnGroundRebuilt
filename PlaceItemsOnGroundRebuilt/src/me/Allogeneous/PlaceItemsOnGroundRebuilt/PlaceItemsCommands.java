@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Threads.PlaceItemsDataSyncer;
 
 
 
@@ -56,10 +57,16 @@ public class PlaceItemsCommands implements CommandExecutor{
 						if(sender.hasPermission("placeitems.configname")) {
 							sender.sendMessage(ChatColor.YELLOW  +"/placeitems configname" + ChatColor.AQUA + " - get the name of the item in your hand that will be accepted by lists in the config file");
 						}
-						if(sender.hasPermission("placeitems.purge")) {
+						if(sender.hasPermission("placeitems.purge") || sender.hasPermission("placeitems.playerdata")) {
 							sender.sendMessage(ChatColor.DARK_RED + "=====================" + ChatColor.RED + "Danger Zone" + ChatColor.DARK_RED + "=====================");
-							sender.sendMessage(ChatColor.YELLOW  +"/placeitems purge <radius>" + ChatColor.AQUA + " - this command is designed to fix bugs if a location is not allowing an item to be placed on it");
-							sender.sendMessage(ChatColor.RED  + "Warning: This command is similar to " + ChatColor.YELLOW  +"/placeitems clear <radius>" + ChatColor.RED + " (try using this command first), but if needed, this command will remove ALL ARMOR STANDS (even those not placed by this plugin) in the given radius. It will also purge the location data file of all place items data in the specified radius (1 - 250) blocks!");
+							if(sender.hasPermission("placeitems.playerdata")) {
+								sender.sendMessage(ChatColor.YELLOW  +"/placeitems playerdata <arg> <name> (<arg>) (<arg>)" + ChatColor.AQUA + " - allows direct manipulation of a player's data file");
+								sender.sendMessage(ChatColor.RED  + "Warning: Direct player data manipulation can lead to unexpected results if not careful!");
+							}
+							if(sender.hasPermission("placeitems.purge")) {
+								sender.sendMessage(ChatColor.YELLOW  +"/placeitems purge <radius>" + ChatColor.AQUA + " - this command is designed to fix bugs if a location is not allowing an item to be placed on it");
+								sender.sendMessage(ChatColor.RED  + "Warning: This command is similar to " + ChatColor.YELLOW  +"/placeitems clear <radius>" + ChatColor.RED + " (try using this command first), but if needed, this command will remove ALL ARMOR STANDS (even those not placed by this plugin) in the given radius. It will also purge the location data file of all place items data in the specified radius (1 - 250) blocks!");
+							}
 						}
 						sender.sendMessage(ChatColor.AQUA + "====================" + ChatColor.BLUE + "PlaceItems Help" + ChatColor.AQUA + "====================");
 					}else {
@@ -67,12 +74,6 @@ public class PlaceItemsCommands implements CommandExecutor{
 					}
 					return true;
 				}
-				
-				/*	
-				if(arg.equalsIgnoreCase("debug")){ 
-					manager.debug();
-				}
-				*/
 				
 				if(arg.equalsIgnoreCase("toggle")){ 
 					if(sender.hasPermission("placeitems.toggle")){
@@ -245,7 +246,7 @@ public class PlaceItemsCommands implements CommandExecutor{
 					if(sender.hasPermission("placeitems.reload")){
 						if(args.length == 1){
 							plugin.reloadTheConfigFile();
-							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "Config file reloaded!");
+							sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "Config file reloaded! Some changes will not happen until after a server restart!");
 						}
 					}else {
 						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission use that command!");
@@ -334,11 +335,112 @@ public class PlaceItemsCommands implements CommandExecutor{
 					return true;
 				}
 				
+				if(arg.equalsIgnoreCase("playerdata")){ 
+					if(sender.hasPermission("placeitems.playerdata")) {
+						if(args.length == 3) {
+							if(args[1].equalsIgnoreCase("show")) {
+								Player target = Bukkit.getPlayer(args[2]);
+								if(target != null) {
+									sender.sendMessage(ChatColor.AQUA + "====================" + ChatColor.BLUE + "PlaceItems File" + ChatColor.AQUA + "====================");
+									sender.sendMessage(ChatColor.RED + "uuid: " + ChatColor.GREEN + manager.getUUID(target).toString());
+									sender.sendMessage(ChatColor.RED + "name: " + ChatColor.GREEN + manager.getName(target));
+									sender.sendMessage(ChatColor.RED + "placeCap: " + ChatColor.GREEN + manager.getRawMaxPlacements(target));
+									sender.sendMessage(ChatColor.RED + "hasCustomPlaceCap: " + ChatColor.GREEN + manager.getHasCustomPlaceCap(target));
+									sender.sendMessage(ChatColor.RED + "amountPlaced: " + ChatColor.GREEN + manager.getPlacements(target));
+									sender.sendMessage(ChatColor.RED + "placeToggled: " + ChatColor.GREEN + manager.getPlaceToggled(target));
+									sender.sendMessage(ChatColor.RED + "rightClickPickupToggled: " + ChatColor.GREEN + manager.getRightClickPickupToggled(target));
+									sender.sendMessage(ChatColor.AQUA + "====================" + ChatColor.BLUE + "PlaceItems File" + ChatColor.AQUA + "====================");
+								}
+							}
+							if(args[1].equalsIgnoreCase("sync")) {
+								Player target = Bukkit.getPlayer(args[2]);
+								if(target != null) {
+									PlaceItemsDataSyncer pids = new PlaceItemsDataSyncer(sender, target, manager);
+									pids.runTaskAsynchronously(plugin);
+									return true;
+								}else {
+									sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That player is not online!");
+									return true;
+								}
+							}
+						}
+						
+						if(args.length == 5) {
+							if(args[1].equalsIgnoreCase("set")) {
+								Player target = Bukkit.getPlayer(args[2]);
+								if(target != null) {
+									switch(args[3].toLowerCase()) {
+										case "placecap":
+											int placecap = 0;
+											try {
+												placecap = Integer.parseInt(args[4]);
+												manager.setMaxPlacements(target, placecap);
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "The value " + ChatColor.RED +  "placeCap " + ChatColor.AQUA + "has been set to " + ChatColor.GREEN + placecap + ChatColor.AQUA + " for " + ChatColor.GREEN + target.getName() + ChatColor.AQUA + ".");
+											}catch(Exception e) {
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Value must be an integer!");
+											}
+											return true;
+										case "hascustomplacecap":
+											boolean hascustomplacecap = false;
+											try {
+												hascustomplacecap = Boolean.parseBoolean(args[4]);
+												manager.setHasCustomPlaceCap(target, hascustomplacecap);
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "The value " + ChatColor.RED +  "hasCustomPlaceCap " + ChatColor.AQUA + "has been set to " + ChatColor.GREEN + hascustomplacecap + ChatColor.AQUA + " for " + ChatColor.GREEN + target.getName() + ChatColor.AQUA + ".");
+											}catch(Exception e) {
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Value must be true or false!");
+											}
+											return true;
+										case "amountplaced":
+											int amountplaced = 0;
+											try {
+												amountplaced = Integer.parseInt(args[4]);
+												manager.setPlacements(target, amountplaced);
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "The value " + ChatColor.RED +  "amountPlaced " + ChatColor.AQUA + "has been set to " + ChatColor.GREEN + amountplaced + ChatColor.AQUA + " for " + ChatColor.GREEN + target.getName() + ChatColor.AQUA + ".");
+											}catch(Exception e) {
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Value must be an integer!");
+											}
+											return true;
+										case "placetoggled":
+											boolean placetoggled = false;
+											try {
+												placetoggled = Boolean.parseBoolean(args[4]);
+												manager.setPlaceToggled(target, placetoggled);
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "The value " + ChatColor.RED +  "placeToggled " + ChatColor.AQUA + "has been set to " + ChatColor.GREEN + placetoggled + ChatColor.AQUA + " for " + ChatColor.GREEN + target.getName() + ChatColor.AQUA + ".");
+											}catch(Exception e) {
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Value must be true or false!");
+											}
+											return true;
+										case "rightclickpickuptoggled":
+											boolean rightclickpickuptoggled = false;
+											try {
+												rightclickpickuptoggled = Boolean.parseBoolean(args[4]);
+												manager.setRightClickPickupToggled(target, rightclickpickuptoggled);
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "The value " + ChatColor.RED +  "rightClickPickupToggled " + ChatColor.AQUA + "has been set to " + ChatColor.GREEN + rightclickpickuptoggled + ChatColor.AQUA + " for " + ChatColor.GREEN + target.getName() + ChatColor.AQUA + ".");
+											}catch(Exception e) {
+												sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "Value must be true or false!");
+											}
+											return true;
+										default:
+											return true;
+									}
+								}else {
+									sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That player is not online!");
+									return true;
+								}
+							}
+						}
+					}else {
+						sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission use that command!");
+					}
+				}
+				
 			}else {
 				sender.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.AQUA + "Try " + ChatColor.YELLOW  + "/placeitems help" + ChatColor.AQUA + " for help!");
 			}
 			
 		}
+		
+		
 		return true;
 	}
 

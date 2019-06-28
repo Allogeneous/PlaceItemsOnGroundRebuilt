@@ -16,7 +16,7 @@ public class PlaceItemsTabCompleter implements TabCompleter{
 	public List<String> onTabComplete(CommandSender sender, Command command, String commandLable, String[] args) {
 		if(command.getName().equalsIgnoreCase("placeitems")){
 			if(args.length == 1){
-				return Arrays.asList(new String[]{"help", "toggle", "rightclicktoggle", "siderotation", "set", "clear", "reload", "restorecap", "configname", "purge"});
+				return Arrays.asList(new String[]{"help", "toggle", "rightclicktoggle", "siderotation", "set", "clear", "reload", "restorecap", "configname", "purge", "playerdata"});
 			}
 			if(args.length == 2) {
 				if(args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("restorecap")) {
@@ -32,11 +32,48 @@ public class PlaceItemsTabCompleter implements TabCompleter{
 				if(args[0].equalsIgnoreCase("siderotation")) {
 					return Arrays.asList(new String[]{"0", "1", "2", "3", "4", "5", "6", "7"});
 				}
+				if(args[0].equalsIgnoreCase("playerdata")) {
+					return Arrays.asList(new String[]{"show", "sync", "set"});
+				}
+				
 			}
 			
 			if(args.length == 3) {
 				if(args[0].equalsIgnoreCase("set")) {
 					return Arrays.asList(new String[]{"0", "1", "10", "100", "u"});
+				}
+				
+				if(args[0].equalsIgnoreCase("playerdata")) {
+					List<String> names = new ArrayList<>();
+					for(Player p : Bukkit.getServer().getOnlinePlayers()) {
+						names.add(p.getName());
+					}
+					return names;
+				}
+			}
+			
+			if(args.length == 4) {
+				if(args[0].equalsIgnoreCase("playerdata") && args[1].equalsIgnoreCase("set")) {
+					return Arrays.asList(new String[]{"placecap", "hascustomplacecap", "amountplaced", "placetoggled", "rightclickpickuptoggled"});
+				}
+			}
+			
+			if(args.length == 5) {
+				if(args[0].equalsIgnoreCase("playerdata") && args[1].equalsIgnoreCase("set")) {
+					switch(args[3].toLowerCase()) {
+						case "placecap":
+							return Arrays.asList(new String[]{"-1", "0", "1", "10", "100"});
+						case "hascustomplacecap":
+							return Arrays.asList(new String[]{"true", "false"});
+						case "amountplaced":
+							return Arrays.asList(new String[]{"0", "1", "10", "100"});
+						case "placetoggled":
+							return Arrays.asList(new String[]{"true", "false"});
+						case "rightclickpickuptoggled":
+							return Arrays.asList(new String[]{"true", "false"});
+						default:
+							return null;
+					}
 				}
 			}
 		}

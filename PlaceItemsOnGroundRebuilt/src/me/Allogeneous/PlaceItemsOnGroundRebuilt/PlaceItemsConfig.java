@@ -13,6 +13,8 @@ public class PlaceItemsConfig {
 	private static boolean allowBottomPlacing;
 	private static boolean includeBlocksThatCanMoveOrDisappear;
 	private static int configVersion;
+	
+	private static boolean plotSquaredClear;
 
 	private static ArrayList<String> blackListedItemsAll;
 	private static ArrayList<String> blackListedItemsTop;
@@ -167,6 +169,12 @@ public class PlaceItemsConfig {
 	}
 	public static void setIncludeBlocksThatCanMoveOrDisappear(boolean includeBlocksThatCanMoveOrDisappear) {
 		PlaceItemsConfig.includeBlocksThatCanMoveOrDisappear = includeBlocksThatCanMoveOrDisappear;
+	}
+	public static boolean isPlotSquaredClear() {
+		return plotSquaredClear;
+	}
+	public static void setPlotSquaredClear(boolean plotSquaredClear) {
+		PlaceItemsConfig.plotSquaredClear = plotSquaredClear;
 	}
 
 }
