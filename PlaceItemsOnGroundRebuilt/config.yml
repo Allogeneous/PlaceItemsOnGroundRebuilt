@@ -9,6 +9,8 @@ useLocationAutoSave: true
 forceLegacy: true
 #Time is in minutes for autosave
 locationAutoSaveTime: 1
+#Repeat the update checker every hour (true) or only on server boot (false)
+repeatUpdateChecker: true
 #Default amount of items a player can place on the ground (set to -1 for unlimited)
 defaultPlaceCap: 10
 #Allow item placing on the top of blocks
@@ -17,12 +19,24 @@ allowTopPlacing: true
 allowSidePlacing: true
 #Allow item placing on the bottom of blocks
 allowBottomPlacing: true
+#This plugin now uses bStats! This helps me collect some basic information on how and where this plugin in being used.
+#You can read about this here: https://bstats.org
+#I would really appriciate it if you left this set to true! <3
+bStats: true
+#Prevent items from being placed on the gound in certain worlds. 
+#Example: worldBlacklist: world1, world2
+worldBlacklist:
 
 #######################
 #EXPERIMENTAL FEATURES#
 #######################
 
+#/plot clear and /plot delete will remove any placed items correctly
 plotSquaredClear: false
+
+#This is designed to resolve issues with "custom item" or "custom block" plugins.
+#Making this setting this to true will make it so that only blocks or items can be placed that do not have a display name or lore.
+strictCompatibilityMode: false
 
 ###################
 #BLACKLISTED ITEMS#
@@ -183,12 +197,12 @@ itemLikeBlocks: BARRIER, TRIPWIRE_HOOK, DEAD_BUSH, BROWN_MUSHROOM, RED_MUSHROOM,
   MAGENTA_STAINED_GLASS_PANE, LIGHT_BLUE_STAINED_GLASS_PANE, YELLOW_STAINED_GLASS_PANE,
   LIME_STAINED_GLASS_PANE, PINK_STAINED_GLASS_PANE, GRAY_STAINED_GLASS_PANE, LIGHT_GRAY_STAINED_GLASS_PANE,
   CYAN_STAINED_GLASS_PANE, PURPLE_STAINED_GLASS_PANE, BLUE_STAINED_GLASS_PANE, BROWN_STAINED_GLASS_PANE,
-  GREEN_STAINED_GLASS_PANE, RED_STAINED_GLASS_PANE, BLACK_STAINED_GLASS_PANE, SIGN
+  GREEN_STAINED_GLASS_PANE, RED_STAINED_GLASS_PANE, BLACK_STAINED_GLASS_PANE, SIGN, NETHER_WART
 
 legacyItemLikeBlocks: BARRIER, TRIPWIRE_HOOK, DEAD_BUSH, BROWN_MUSHROOM, RED_MUSHROOM, LADDER,
   TORCH, LEVER, RAILS, ACTIVATOR_RAIL, DETECTOR_RAIL, POWERED_RAIL, LADDER, VINE,
   HOPPER, IRON_FENCE, REDSTONE_TORCH_ON, YELLOW_FLOWER, RED_FLOWER, SAPLING, DOUBLE_PLANT, SIGN, 
-  THIN_GLASS, WEB, STAINED_GLASS_PANE
+  THIN_GLASS, WEB, STAINED_GLASS_PANE, NETHER_WART
 
 #If an item is clipping into the groud funny adding it here might fix it, if not it might need to be blacklisted
 blockLikeItems: LEATHER_HELMET, CHAINMAIL_HELMET, GOLD_HELMET, IRON_HELMET, DIAMOND_HELMET,
@@ -207,4 +221,4 @@ placeIn: AIR, CAVE_AIR, WATER
 ##############
 #DO NOT TOUCH#
 ##############
-configVersion: 7 
+configVersion: 8 

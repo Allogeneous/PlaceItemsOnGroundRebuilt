@@ -2,6 +2,8 @@ package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
@@ -11,6 +13,7 @@ import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsLocationAutoSave
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlotSquared.PlotClearEventListener;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Threads.PlaceItemsUpdateChecker;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.bStats.Metrics;
 
 
 public class PlaceItemsMain extends JavaPlugin{
@@ -20,7 +23,7 @@ public class PlaceItemsMain extends JavaPlugin{
 	private PlaceItemsManager manager;
 	private PlaceItemsLocationAutoSaver autoSaver;
 	private PlaceItemsVersionSensitiveMethods versionHandler;
-	private int configVersion = 7;
+	private int configVersion = 8;
 	
 	@Override
 	public void onEnable(){
@@ -44,7 +47,11 @@ public class PlaceItemsMain extends JavaPlugin{
 		}
 		
 		PlaceItemsUpdateChecker updateChecker = new PlaceItemsUpdateChecker(this, this.getDescription().getVersion());
-		updateChecker.runTaskTimerAsynchronously(this, 0, 60 * 1200);
+		if(PlaceItemsConfig.isRepeatUpdateChecker()) {
+			updateChecker.runTaskTimerAsynchronously(this, 0, 60 * 1200);
+		}else {
+			updateChecker.runTaskAsynchronously(this);
+		}
 		
 		if(PlaceItemsConfig.isPlotSquaredClear()) {
 			if(Bukkit.getPluginManager().isPluginEnabled("PlotSquared")) {
@@ -58,11 +65,41 @@ public class PlaceItemsMain extends JavaPlugin{
 			mcMMO = true;
 		}
 		
+		if(PlaceItemsConfig.isbStats()) {
+			enablebStats();
+		}
+		
 	}
 	
 	@Override
 	public void onDisable(){
 		manager.saveLocationData();
+	}
+	
+	private void enablebStats() {
+		Metrics metrics = new Metrics(this);
+		metrics.addCustomChart(new Metrics.DrilldownPie("placement_locations", () -> {
+		        Map<String, Map<String, Integer>> map = new HashMap<>();
+		        int amountPlaced = this.manager.getPlacementLocationsAmount();
+		        Map<String, Integer> entry = new HashMap<>();
+		        entry.put(""+amountPlaced, 1);
+		        if (amountPlaced < 100) {
+		            map.put("< 100", entry);
+		        } else if (amountPlaced >= 100 && amountPlaced < 1000) {
+		            map.put("100 - 999", entry);
+		        } else if (amountPlaced >= 1000 && amountPlaced < 10000) {
+		            map.put("1000 - 9999", entry);
+		        } else if (amountPlaced >= 10000 && amountPlaced < 100000) {
+		            map.put("10000 - 99999", entry);
+		        } else if (amountPlaced >= 100000 && amountPlaced < 1000000) {
+		            map.put("100000 - 999999", entry);
+		        } else if (amountPlaced >= 1000000) {
+		            map.put(">= 1000000", entry);
+		        } else {
+		        	map.put("undefined", entry);
+		        }
+		        return map;
+		}));
 	}
 	
 	protected void reloadTheConfigFile() {
@@ -98,8 +135,15 @@ public class PlaceItemsMain extends JavaPlugin{
 		PlaceItemsConfig.setAllowSidePlacing(getConfig().getBoolean("allowSidePlacing", true));
 		PlaceItemsConfig.setAllowBottomPlacing(getConfig().getBoolean("allowBottomPlacing", true));
 		PlaceItemsConfig.setIncludeBlocksThatCanMoveOrDisappear(getConfig().getBoolean("includeBlocksThatCanMoveOrDisappear", false));
-		
+		PlaceItemsConfig.setRepeatUpdateChecker(getConfig().getBoolean("repeatUpdateChecker", true));
+		PlaceItemsConfig.setStrictCompatibilityMode(getConfig().getBoolean("strictCompatibilityMode", false));
 		PlaceItemsConfig.setPlotSquaredClear(getConfig().getBoolean("plotSquaredClear", false));
+		PlaceItemsConfig.setbStats(getConfig().getBoolean("bStats", true));
+		
+		String[] worldBlacklist = getConfig().getString("worldBlacklist", "").split(", ");
+		PlaceItemsConfig.setBlacklistedWorlds(new ArrayList<>(Arrays.asList(worldBlacklist)));
+		
+		//System.out.println(Arrays.asList(PlaceItemsConfig.getBlacklistedWorlds()).toString());
 		
 		if(versionHandler.isLegacy() && PlaceItemsConfig.isForceLegacy()) {
 			getLogger().info("Legacy server version detected... loading proper config lists.");

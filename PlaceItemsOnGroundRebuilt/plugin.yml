@@ -1,5 +1,5 @@
 name: PlaceItemsOnGroundRebuilt
-version: 1.0.2
+version: 1.0.3
 api-version: 1.13
 softdepend: [PlotSquared, mcMMO]
 author: Allogeneous
@@ -58,4 +58,7 @@ permissions:
         default: op
     placeitems.playerdata:
         description: Allows usage of /placeitems playerdata to directly manipulate the player's data file
+        default: op
+    placeitems.worldblacklistbypass:
+        description: Allows user to bypass the world blacklist
         default: op

@@ -12,6 +12,9 @@ public class PlaceItemsConfig {
 	private static boolean allowSidePlacing;
 	private static boolean allowBottomPlacing;
 	private static boolean includeBlocksThatCanMoveOrDisappear;
+	private static boolean strictCompatibilityMode;
+	private static boolean repeatUpdateChecker;
+	private static boolean bStats;
 	private static int configVersion;
 	
 	private static boolean plotSquaredClear;
@@ -30,6 +33,7 @@ public class PlaceItemsConfig {
 	private static ArrayList<String> slabs;
 	private static ArrayList<String> legacyDoubleSlabs;
 	private static ArrayList<String> stairs;
+	private static ArrayList<String> blacklistedWorlds;
 	
 
 	public static boolean useLocationAutoSave() {
@@ -175,6 +179,30 @@ public class PlaceItemsConfig {
 	}
 	public static void setPlotSquaredClear(boolean plotSquaredClear) {
 		PlaceItemsConfig.plotSquaredClear = plotSquaredClear;
+	}
+	public static ArrayList<String> getBlacklistedWorlds() {
+		return blacklistedWorlds;
+	}
+	public static void setBlacklistedWorlds(ArrayList<String> blacklistedWorlds) {
+		PlaceItemsConfig.blacklistedWorlds = blacklistedWorlds;
+	}
+	public static boolean isRepeatUpdateChecker() {
+		return repeatUpdateChecker;
+	}
+	public static void setRepeatUpdateChecker(boolean repeatUpdateChecker) {
+		PlaceItemsConfig.repeatUpdateChecker = repeatUpdateChecker;
+	}
+	public static boolean isStrictCompatibilityMode() {
+		return strictCompatibilityMode;
+	}
+	public static void setStrictCompatibilityMode(boolean strictCompatibilityMode) {
+		PlaceItemsConfig.strictCompatibilityMode = strictCompatibilityMode;
+	}
+	public static boolean isbStats() {
+		return bStats;
+	}
+	public static void setbStats(boolean bStats) {
+		PlaceItemsConfig.bStats = bStats;
 	}
 
 }

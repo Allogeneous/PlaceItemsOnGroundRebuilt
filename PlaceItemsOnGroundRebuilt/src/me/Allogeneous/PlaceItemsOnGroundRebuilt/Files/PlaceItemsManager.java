@@ -136,6 +136,10 @@ public class PlaceItemsManager {
 	 * Creates a new player yml file for a player when they join for the first time
 	 */
 	
+	public int getPlacementLocationsAmount() {
+		return placedItemLinkedLocations.size();
+	}
+	
 	public void makeNewPlayerFile(Player p){
 		
 			File data = rawFile(p);

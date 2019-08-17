@@ -57,133 +57,142 @@ public class PlaceItemsEvents implements Listener{
 	
 	@EventHandler
 	public void onPlayerPlace(PlayerInteractEvent e){
-		if(e.getHand() == EquipmentSlot.HAND) {
-			Player p = e.getPlayer();
-			if(e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
-				return;
-			}
-			
-			if(e.getClickedBlock() == null) {
-				return;
-			}
-			
-			if(e.getAction() != Action.RIGHT_CLICK_BLOCK) {
-				return;
-			}
-			if(plugin.mcMMO) {
-				boolean value = mcMMOpeh.handlePlacementDataPrefire(e.getClickedBlock());
-				BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
-				Bukkit.getServer().getPluginManager().callEvent(bpe);
-				mcMMOpeh.handlePlacementDataPostfire(e.getClickedBlock(), value);
-				if(bpe.isCancelled()) {
-					return;
-				}
-			}else {
-				BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
-				Bukkit.getServer().getPluginManager().callEvent(bpe);
-				if(bpe.isCancelled()) {
-					return;
-				}
-			}
-			
-			
-			
-			if(isBlockey(p.getInventory().getItemInMainHand())) {
-				if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())) {
-					e.setCancelled(true);
-					return;
-				}
-			}
-			
-			
-			if(manager.getPlaceToggled(p) && p.isSneaking()){
-				switch(e.getBlockFace().toString()) {
-				case "UP":
-					if(!PlaceItemsConfig.isAllowTopPlacing()) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the top of blocks has been disabled!");
-						return;
-					}
-					if(!p.hasPermission("placeitems.place")) {
-						if(!p.hasPermission("placeitems.place.top")) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the top of blocks!");
-							return;
-						}
-					}
-					break;
-				case "DOWN":
-					if(!PlaceItemsConfig.isAllowBottomPlacing()) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the bottom of blocks has been disabled!");
-						return;
-					}
-					if(!p.hasPermission("placeitems.place")) {
-						if(!p.hasPermission("placeitems.place.bottom")) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the bottom of blocks!");
-							return;
-						}
-					}
-					break;
-				case "NORTH":
-				case "SOUTH":
-				case "WEST":
-				case "EAST":
-					if(!PlaceItemsConfig.isAllowSidePlacing()) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the sides of blocks has been disabled!");
-						return;
-					}
-					if(!p.hasPermission("placeitems.place")) {
-						if(!p.hasPermission("placeitems.place.sides")) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the sides of blocks!");
-							return;
-						}
-					}
-					break;
-				default:
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Error: Unknown blockface!");
-					e.setCancelled(true);
-					return;
-				}	
-					
-				
-				
-				if(PlaceItemsUtils.isBlacklisted(p.getInventory().getItemInMainHand().getType(), e.getBlockFace().toString())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place " + ChatColor.YELLOW + p.getInventory().getItemInMainHand().getType() + ChatColor.RED + "!");
-					e.setCancelled(true);
-					return;
-				}
-				
-				
-				if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())){
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place more than one item on one side of a block!");
-					e.setCancelled(true);
-					return;
-				}
-				
-				
-				if(!isValidPlace(e.getClickedBlock().getType(), e.getBlockFace())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
-					e.setCancelled(true);
-					return;
-				}
-				
-				if(PlaceItemsUtils.isSlab(e.getClickedBlock().getType())) {
-					if(!versionHandler.isValidSlab(e.getClickedBlock(), e.getBlockFace().toString())) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
-						e.setCancelled(true);
-						return;
-					}
-				}
-				
-				if(!handlePermissionCheck(p)) {
-					return;
-				}
-				
-			}else{
-				return;
-			}
-			e.setCancelled(true);
-			longAssPlacementCaseMethod(p, e.getClickedBlock(), e.getBlockFace());
-
+		Player p = e.getPlayer();
+		
+		if(e.getHand() != EquipmentSlot.HAND || !p.isSneaking() || !manager.getPlaceToggled(p)) {
+			return;
 		}
+		
+		if(e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
+			return;
+		}
+		
+
+		if(e.getClickedBlock() == null) {
+			return;
+		}
+
+		if(e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+			return;
+		}
+		
+		if(PlaceItemsConfig.isStrictCompatibilityMode()) {
+			if(p.getInventory().getItemInMainHand().hasItemMeta()) {
+				if(p.getInventory().getItemInMainHand().getItemMeta().hasLore() || p.getInventory().getItemInMainHand().getItemMeta().hasDisplayName()) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Strict compatibilty mode is running! Blocks and items must not have custom names or lore!");
+					return;
+				}
+			}
+		}
+		
+		if(plugin.mcMMO) {
+			boolean value = mcMMOpeh.handlePlacementDataPrefire(e.getClickedBlock());
+			BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
+			Bukkit.getServer().getPluginManager().callEvent(bpe);
+			mcMMOpeh.handlePlacementDataPostfire(e.getClickedBlock(), value);
+			if(bpe.isCancelled()) {
+				return;
+			}
+		}else {
+			BlockPlaceEvent bpe = new BlockPlaceEvent(e.getClickedBlock(), e.getClickedBlock().getState(), e.getClickedBlock(), p.getInventory().getItemInMainHand(), p, true, EquipmentSlot.HAND);
+			Bukkit.getServer().getPluginManager().callEvent(bpe);
+			if(bpe.isCancelled()) {
+				return;
+			}
+		}
+
+		if(isBlockey(p.getInventory().getItemInMainHand())) {
+			if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())) {
+				e.setCancelled(true);
+				return;
+			}
+		}
+
+		switch(e.getBlockFace().toString()) {
+		case "UP":
+			if(!PlaceItemsConfig.isAllowTopPlacing()) {
+				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the top of blocks has been disabled!");
+				return;
+			}
+			if(!p.hasPermission("placeitems.place")) {
+				if(!p.hasPermission("placeitems.place.top")) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the top of blocks!");
+					return;
+				}
+			}
+			break;
+		case "DOWN":
+			if(!PlaceItemsConfig.isAllowBottomPlacing()) {
+				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the bottom of blocks has been disabled!");
+				return;
+			}
+			if(!p.hasPermission("placeitems.place")) {
+				if(!p.hasPermission("placeitems.place.bottom")) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the bottom of blocks!");
+					return;
+				}
+			}
+			break;
+		case "NORTH":
+		case "SOUTH":
+		case "WEST":
+		case "EAST":
+			if(!PlaceItemsConfig.isAllowSidePlacing()) {
+				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the sides of blocks has been disabled!");
+				return;
+			}
+			if(!p.hasPermission("placeitems.place")) {
+				if(!p.hasPermission("placeitems.place.sides")) {
+					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the sides of blocks!");
+					return;
+				}
+			}
+			break;
+		default:
+			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Error: Unknown blockface!");
+			e.setCancelled(true);
+			return;
+		}
+
+
+
+		if(PlaceItemsUtils.isBlacklisted(p.getInventory().getItemInMainHand().getType(), e.getBlockFace().toString())) {
+			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place " + ChatColor.YELLOW + p.getInventory().getItemInMainHand().getType() + ChatColor.RED + "!");
+			e.setCancelled(true);
+			return;
+		}
+
+
+		if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())){
+			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place more than one item on one side of a block!");
+			e.setCancelled(true);
+			return;
+		}
+
+
+		if(!isValidPlace(e.getClickedBlock().getType(), e.getBlockFace())) {
+			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
+			e.setCancelled(true);
+			return;
+		}
+
+		if(PlaceItemsUtils.isSlab(e.getClickedBlock().getType())) {
+			if(!versionHandler.isValidSlab(e.getClickedBlock(), e.getBlockFace().toString())) {
+				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
+				e.setCancelled(true);
+				return;
+			}
+		}
+
+		if(!handlePermissionCheck(p)) {
+			return;
+		}
+		
+
+		e.setCancelled(true);
+		longPlacementCaseMethod(p, e.getClickedBlock(), e.getBlockFace());
+
+		
 	}
 	
 	private void updateArea(Location location){
@@ -214,7 +223,6 @@ public class PlaceItemsEvents implements Listener{
 		}
 		return false;
 	}
-
 	
 	@EventHandler
 	public void onPlayerTakeClick(PlayerInteractAtEntityEvent e){
@@ -328,7 +336,7 @@ public class PlaceItemsEvents implements Listener{
 		}
 	}
 	
-	private void longAssPlacementCaseMethod(Player p, Block clickedBlock, BlockFace blockFace) {
+	private void longPlacementCaseMethod(Player p, Block clickedBlock, BlockFace blockFace) {
 			if(blockFace == BlockFace.UP) {
 				Location check = clickedBlock.getLocation().add(0, 1, 0);
 				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
@@ -525,6 +533,8 @@ public class PlaceItemsEvents implements Listener{
 					return;
 				}	
 			}
+			
+			
 			if(p.getInventory().getItemInMainHand().getAmount() == 1) {
 				p.getInventory().setItemInMainHand(null);
 			}else {
@@ -563,6 +573,10 @@ public class PlaceItemsEvents implements Listener{
 	}
 	
 	private boolean handlePermissionCheck(Player p) {
+		if(PlaceItemsConfig.getBlacklistedWorlds().contains(p.getWorld().getName()) && !p.hasPermission("placeitems.worldblacklistbypass")) {
+			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place items in this world!");
+			return false;
+		}
 		for(PermissionAttachmentInfo attachmentInfo : p.getEffectivePermissions()) {
 		      if(attachmentInfo.getPermission().startsWith("placeitems.cap.")) {
 		    	  String permission = attachmentInfo.getPermission();

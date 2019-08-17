@@ -16,6 +16,25 @@ public class PlaceItemsTabCompleter implements TabCompleter{
 	public List<String> onTabComplete(CommandSender sender, Command command, String commandLable, String[] args) {
 		if(command.getName().equalsIgnoreCase("placeitems")){
 			if(args.length == 1){
+				String lowerArg0 = args[0].toLowerCase();
+				if(lowerArg0.startsWith("h")){
+					return Arrays.asList(new String[]{"help"});
+				}
+				if(lowerArg0.startsWith("t")){
+					return Arrays.asList(new String[]{"toggle"});
+				}
+				if(lowerArg0.startsWith("r")){
+					return Arrays.asList(new String[]{"rightclicktoggle", "reload", "restorecap"});
+				}
+				if(lowerArg0.startsWith("s")){
+					return Arrays.asList(new String[]{"siderotation", "set"});
+				}
+				if(lowerArg0.startsWith("c")){
+					return Arrays.asList(new String[]{"clear"});
+				}
+				if(lowerArg0.startsWith("p")){
+					return Arrays.asList(new String[]{"purge", "playerdata"});
+				}
 				return Arrays.asList(new String[]{"help", "toggle", "rightclicktoggle", "siderotation", "set", "clear", "reload", "restorecap", "configname", "purge", "playerdata"});
 			}
 			if(args.length == 2) {
