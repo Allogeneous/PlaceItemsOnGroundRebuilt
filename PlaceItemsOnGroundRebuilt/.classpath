@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/Joshua/Desktop/spigot 1.13/Spigot-1.14.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joshua/Desktop/spigot 1.13/plugins/plugins/PlotSquared-Bukkit-4.277.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joshua/Desktop/spigot 1.13/plugins/plugins/mcMMO.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_241">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Junk/mcMMO.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Joshua/Desktop/New Spigot/BuildTools/spigot-1.15.2.jar"/>
+	<classpathentry kind="lib" path="D:/Browser Downloads/PlotSquared-Bukkit-20.03.28-71943e6-796.jar"/>
+	<classpathentry kind="lib" path="D:/Browser Downloads/PlotSquared-Bukkit-4.453.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

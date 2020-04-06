@@ -141,25 +141,24 @@ public class PlaceItemsManager {
 	}
 	
 	public void makeNewPlayerFile(Player p){
-		
-			File data = rawFile(p);
-			if(!data.exists()){
-				if(PlaceItemsUtils.createFile(data)){
-					FileConfiguration newPlayerData = YamlConfiguration.loadConfiguration(data);
-					newPlayerData.addDefault("uuid", p.getUniqueId().toString());
-					newPlayerData.addDefault("name", p.getName());
-					newPlayerData.addDefault("placeCap", 0);
-					newPlayerData.addDefault("hasCustomPlaceCap", false);
-					newPlayerData.addDefault("ammountPlaced", 0);
-					newPlayerData.addDefault("placeToggled", false);
-					newPlayerData.addDefault("rightClickPickupToggled", true);
-					newPlayerData.options().copyDefaults(true);
-					try {
-						newPlayerData.save(data);
-					} catch (IOException e) {
-						plugin.getLogger().info("Unable to save player config file for UUID: " + p.getUniqueId());
-						e.printStackTrace();
-					}
+		File data = rawFile(p);
+		if(!data.exists()){
+			if(PlaceItemsUtils.createFile(data)){
+				FileConfiguration newPlayerData = YamlConfiguration.loadConfiguration(data);
+				newPlayerData.addDefault("uuid", p.getUniqueId().toString());
+				newPlayerData.addDefault("name", p.getName());
+				newPlayerData.addDefault("placeCap", 0);
+				newPlayerData.addDefault("hasCustomPlaceCap", false);
+				newPlayerData.addDefault("ammountPlaced", 0);
+				newPlayerData.addDefault("placeToggled", false);
+				newPlayerData.addDefault("rightClickPickupToggled", true);
+				newPlayerData.options().copyDefaults(true);
+				try {
+					newPlayerData.save(data);
+				} catch (IOException e) {
+					plugin.getLogger().info("Unable to save player config file for UUID: " + p.getUniqueId());
+					e.printStackTrace();
+				}
 			}
 		}
 	}

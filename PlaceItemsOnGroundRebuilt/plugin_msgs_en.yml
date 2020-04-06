@@ -1,0 +1,173 @@
+#Chat color symbol: §
+
+#For reference:
+
+# §1 = Dark Blue
+# §2 = Dark Green
+# §3 = Dark Aqua
+# §4 = Dark Red
+# §5 = Dark Purple
+# §6 = Gold
+# §7 = Gray
+# §8 = Dark Gray
+# §9 = Blue
+# §a = Green
+# §b = Aqua
+# §c = Red
+# §d = Light Purple
+# §e = Yellow
+# §f = White
+# §g = Magic
+# §h = Bold
+# §i = Strike through
+# §n = Underline
+# §o = Italic
+# §r = Reset
+
+#Placeholders
+
+#These placeholders can be used anywhere
+#<playerName>, <tag>
+
+#These placeholders can only be used when specificly stated in a comment above the message
+#<dataFileUuid>, <dataFileName>, <dataFilePlaceCap>, <dataFileHasCustomPlaceCap>, <dataFileAmountPlaced>, <dataFilePlaceToggled>,
+#<dataFileRightClickPlaceToggled>, <clickedBlocked>, <purgeRadius>, <targetPlayerName>, <purgeLocationCount>, <purgeArmorStandCount>, <itemInHand>,
+#<sideRotation>
+
+#This will appear when the <tag> placeholder is used in a message.
+pluginTag: "§9[PlaceItems]§r"
+
+#Commands Section
+
+#Generic
+commandNoPermission: "<tag> §4You do not have permission use that command!"
+notAPlayer: "<tag> §cYou must be a player to send that command!"
+notACommand: "<tag> §bTry §e/placeitems help §bfor help!"
+playerNotOnline: "<tag> §cThat player is not online!"
+
+#/placeitems help
+helpMenuLine1: "§b====================§9PlaceItems Help§b===================="
+helpMenuLine2: "§e/placeitems help §b- displays a list of commands"
+helpMenuLine3: "§e/placeitems toggle §b- toggles the ability for a player to sneak and place items on the ground"
+helpMenuLine5: "§e/placeitems siderotation <0-7> §b- set the position that items placed on their side will be rotated at."
+helpMenuLine4: "§e/placeitems rightclicktoggle §b- toggles the ability for a player to pick up placed items by right clicking"
+helpMenuLine6: "§e/placeitems set <name> <amount> §b- sets the amount of items a player can set on the ground (use a \"u\" in place of the amount for unlimited)"
+helpMenuLine7: "§e/placeitems clear <radius> §b- removes all placed items within a specified block radius (1 - 250) safely"
+helpMenuLine8: "§e/placeitems reload §b- reloads the plugin's config file"
+helpMenuLine9: "§e/placeitems restorecap <name> §b- sets the players placement cap back to the default placement cap"
+helpMenuLine10: "§e/placeitems configname §b- get the name of the item in your hand that will be accepted by lists in the config file"
+helpMenuLine11: "§4=====================§cDanger Zone§4====================="
+helpMenuLine12: "§e/placeitems playerdata <arg> <name> (<arg>) (<arg>) §b- allows direct manipulation of a player's data file"
+helpMenuLine13: "§cWarning: Direct player data manipulation can lead to unexpected results if not careful!"
+helpMenuLine14: "§e/placeitems purge <radius> §b- this command is designed to fix bugs if a location is not allowing an item to be placed on it"
+helpMenuLine15: "§cWarning: This command is similar to §e/placeitems clear <radius> §c(try using this command first), but if needed, this command will remove ALL ARMOR STANDS (even those not placed by this plugin) in the given radius. It will also purge the location data file of all place items data in the specified radius (1 - 250) blocks!"
+helpMenuLine16: "§b====================§9PlaceItems Help§b===================="
+
+#/placeitems toggle
+toggleOn: "<tag> §aYou can now place items!"
+toggleOff: "<tag> §cYou can no longer place items!"
+
+#/placeitems rightclicktoggle
+rcToggleOn: "<tag> §aYou can now right click to pickup items!"
+rcToggleOff: "<tag> §cYou can no longer right click to pickup items!"
+
+#/placeitems set
+setLessThanZero: "<tag> §cAmount must be greater than 0!"
+setInvalidUnlimited: "<tag> §cInvalid cap number! Use §eu §cfor unlimited."
+setInvalidAmount: "<tag> §cInvalid cap number!"
+#Allowed placeholders: <targetPlayerName>
+setCapPermissionWarning: "<tag> §cWarning: <targetPlayerName> already has a cap set via permissions! This command will update the file based placement cap but, the permission cap will override the file based one until it is removed!"
+#Allowed placeholders: <targetPlayerName>
+setCapUnlimited: "<tag> §b<targetPlayerName>'s file based item placement cap has been set to §aUNLIMITED!"
+#Allowed placeholders: <targetPlayerName>, <dataFilePlaceCap>
+setCapAmount: "<tag> §b<targetPlayerName>'s file based item placement cap has been set to §a<dataFilePlaceCap>!"
+
+#/placeitems siderotation
+siderotationInvalidNum: "<tag> §cInvalid rotation number! Use the numbers §e0 - 7§c!"
+#Allowed placeholders: <sideRotation>
+sideRotationSet: "<tag> §bYour side rotation position has been set to §a<sideRotation>§b!"
+
+#/placeitems clear
+clearInvalid: "<tag> §cRadius must be beteen 1 and 250"
+clearInvalidInt: "<tag> §cRadius must be an integer beteen 1 and 250"
+#Allowed placeholders: <purgeArmorStandCount>, <purgeRadius>
+clearValid: "<tag> §bCleareded §a<purgeArmorStandCount> §bplaced items in a §a<purgeRadius> §bblock radius!"
+
+#/placeitems reload
+reloadDone: "<tag> §bConfig file reloaded! Some changes will not happen until after a server restart!"
+
+#/placeitems restorecap
+#Allowed placeholders: <targetPlayerName>
+restoreCapWarning: "<tag> §cWarning: <targetPlayerName> already has a cap set via permissions! This command will reset the file based placement cap but, the permission cap will override the file based one until it is removed!"
+#Allowed placeholders: <targetPlayerName>
+restoreCapDone: "<tag> §b<targetPlayerName>'s file based placement cap has been reset to the default placement cap!"
+#/placeitems configname
+#Allowed placeholders: <itemInHand>
+configNameHandItem: "<tag> §bEnter §e<itemInHand> §binto the config file list."
+configNameError: "<tag> §bYour hand is empty."
+
+#/placeitems purge
+purgeInvalid: "<tag> §cRadius must be beteen 1 and 250"
+purgeInvalidInt: "<tag> §cRadius must be an integer beteen 1 and 250"
+#Allowed placeholders: <purgeArmorStandCount>, <purgeLocationCount>, <purgeRadius>
+purgeValid: "<tag> §bPurged §a<purgeLocationCount> §blocations and §a<purgeArmorStandCount> §barmor stands in a §a<purgeRadius> §bblock radius!"
+
+#/placeitesm playerdata
+
+playerDataLine1: "§b====================§9PlaceItems File§b===================="
+#Allowed placeholders: <dataFileUuid>
+playerDataLine2: "§cuuid: §a<dataFileUuid>"
+#Allowed placeholders: <dataFileName>
+playerDataLine3: "§cname: §a<dataFileName>"
+#Allowed placeholders: <dataFilePlaceCap>
+playerDataLine4: "§cplaceCap: §a<dataFilePlaceCap>"
+#Allowed placeholders: <dataFileHasCustomPlaceCap>
+playerDataLine5: "§chasCustomPlaceCap: §a<dataFileHasCustomPlaceCap>"
+#Allowed placeholders: <dataFileAmountPlaced>
+playerDataLine6: "§camountPlaced: §a<dataFileAmountPlaced>"
+#Allowed placeholders: <dataFilePlaceToggled>
+playerDataLine7: "§cplaceToggled: §a<dataFilePlaceToggled>"
+#Allowed placeholders: <dataFileRightClickPlaceToggled>
+playerDataLine8: "§crightClickPickupToggled: §a<dataFileRightClickPlaceToggled>"
+playerDataLine9: "§b====================§9PlaceItems File§b===================="
+#Allowed placeholders: <targetPlayerName>, <dataFilePlaceCap>
+placeCapSet: "<tag> §bThe value §cplaceCap §bhas been set to §a<dataFilePlaceCap> §bfor §a<targetPlayerName>§b."
+placeCapError: "<tag> §cValue must be an integer!"
+#Allowed placeholders: <targetPlayerName>, <dataFileHasCustomPlaceCap>
+hasCustomPlaceCapSet: "<tag> §bThe value §chasCustomPlaceCap §bhas been set to §a<dataFileHasCustomPlaceCap> §bfor §a<targetPlayerName>§b."
+hasCustomPlaceCapError: "<tag> §cValue must be true or false!"
+#Allowed placeholders: <targetPlayerName>, <dataFileAmountPlaced>
+amountPlacedSet: "<tag> §bThe value §camountPlaced §bhas been set to §a<dataFileAmountPlaced> §bfor §a<targetPlayerName>§b."
+amountPlacedError: "<tag> §cValue must be true or false!"
+#Allowed placeholders: <targetPlayerName>, <dataFilePlaceToggled>
+placeToggledSet: "<tag> §bThe value §cplaceToggled §bhas been set to §a<dataFilePlaceToggled> §bfor §a<targetPlayerName>§b."
+placeToggledError: "<tag> §cValue must be true or false!"
+#Allowed placeholders: <targetPlayerName>, <dataFileRightClickPlaceToggled>
+rightClickPickupToggledSet: "<tag> §bThe value §crightClickPickupToggled §bhas been set to §a<dataFileRightClickPlaceToggled> §bfor §a<targetPlayerName>§b."
+rightClickPickupToggledError: "<tag> §cValue must be true or false!"
+
+#Events Section
+
+strictCombatibilityPlacementBlock: "<tag> §4Strict compatibilty mode is running! Blocks and items must not have custom names or lore!"
+topPlacingDisabled: "<tag> §4Placing items on the top of blocks has been disabled!"
+topPlacingNoPermission: "<tag> §4You do not have permission to place items on the top of blocks!"
+sidePlacingDisabled: "<tag> §4Placing items on the sides of blocks has been disabled!"
+sidePlacingNoPermission: "<tag> §4You do not have permission to place items on the sides of blocks!"
+bottomPlacingDisabled: "<tag> §4Placing items on the bottom of blocks has been disabled!"
+bottomPlacingNoPermission: "<tag> §4You do not have permission to place items on the bottom of blocks!"
+unknownBlockFace: "<tag> §4Error: Unknown blockface!"
+#Allowed placeholders: <itemInHand>
+blacklistedItem: "<tag> §cYou cannot place §e<itemInHand>§c!"
+blockFaceTaken: "<tag> §cYou cannot place more than one item on one side of a block!"
+invalidBlock: "<tag> §cYou cannot place an item on that block!"
+invalidSlab: "<tag> §cYou cannot place an item on that block!"
+takeItemsNoPermission: "<tag> §4You do not have permission to take items!"
+#Allowed placeholders: <clickedBlocked>
+placeInsideAnotherBlockError: "<tag> §cYou cannot place an item in §e<clickedBlocked>§c!"
+orientationTaken: "<tag> §cThat orientation position is already taken! Try repositioning the item."
+worldNoPermission: "<tag> §cYou cannot place items in this world!"
+placementCapPermissionReadError: "<tag> §cYou have an error with your permission, using default settings!"
+placementCapReached: "<tag> §cYou have reached your placement cap!"
+
+#DO NOT TOUCH
+version: 1

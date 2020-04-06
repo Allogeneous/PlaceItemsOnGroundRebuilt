@@ -4,19 +4,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.github.intellectualsites.plotsquared.plot.object.Plot;
+import com.intellectualcrafters.plot.object.Plot;
 
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.AdvancedPlaceItemsLinkedLocation;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsPlayerPlaceLocation;
 
-public class PlotSquaredPlotClear extends BukkitRunnable{
+public class LegacyPlotSquaredPlotClear extends BukkitRunnable{
 	
 	String world;
 	Plot plot;
 	PlaceItemsManager manager;
 	
-	public PlotSquaredPlotClear(String world, Plot plot, PlaceItemsManager manager) {
+	public LegacyPlotSquaredPlotClear(String world, Plot plot, PlaceItemsManager manager) {
 		this.world = world;
 		this.plot = plot;
 		this.manager = manager;
@@ -36,7 +36,7 @@ public class PlotSquaredPlotClear extends BukkitRunnable{
 		
 		boolean first = true;
 		
-		for(com.github.intellectualsites.plotsquared.plot.object.Location location : plot.getAllCorners()) {
+		for(com.intellectualcrafters.plot.object.Location location : plot.getAllCorners()) {
 			if(first) {
 				first = false;
 				minX = location.getX();
@@ -58,7 +58,6 @@ public class PlotSquaredPlotClear extends BukkitRunnable{
 					maxZ = location.getZ();
 				}
 			}
-
 		}
 		
 		for(int x = minX-1; x <= maxX; x++) {
@@ -79,6 +78,6 @@ public class PlotSquaredPlotClear extends BukkitRunnable{
 				}
 			}
 		}
-		
 	}
+	
 }

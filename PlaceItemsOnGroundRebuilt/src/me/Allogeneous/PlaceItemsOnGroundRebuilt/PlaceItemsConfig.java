@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class PlaceItemsConfig {
 	
+	private static String languageFile;
 	private static boolean useLocationAutoSave;
 	private static boolean forceLegacy;
 	private static int locationAutoSaveTime;
@@ -203,6 +204,12 @@ public class PlaceItemsConfig {
 	}
 	public static void setbStats(boolean bStats) {
 		PlaceItemsConfig.bStats = bStats;
+	}
+	public static String getLanguageFile() {
+		return languageFile;
+	}
+	public static void setLanguageFile(String languageFile) {
+		PlaceItemsConfig.languageFile = languageFile;
 	}
 
 }

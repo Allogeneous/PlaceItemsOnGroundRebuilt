@@ -1,19 +1,23 @@
 package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.Allogeneous.PlaceItems.Lang.LanguageFile;
+import me.Allogeneous.PlaceItems.Lang.MessageChatStringParser;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsLocationAutoSaver;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlotSquared.LegacyPlotClearEventListener;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlotSquared.PlotClearEventListener;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Threads.PlaceItemsUpdateChecker;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.bStats.Metrics;
+
 
 
 public class PlaceItemsMain extends JavaPlugin{
@@ -23,15 +27,26 @@ public class PlaceItemsMain extends JavaPlugin{
 	private PlaceItemsManager manager;
 	private PlaceItemsLocationAutoSaver autoSaver;
 	private PlaceItemsVersionSensitiveMethods versionHandler;
-	private int configVersion = 8;
+	private LanguageFile langFile;
+	private MessageChatStringParser messageParser;
+	
+	private int configVersion = 9;
 	
 	@Override
 	public void onEnable(){
 		versionHandler = new PlaceItemsVersionSensitiveMethods(Bukkit.getBukkitVersion()); 
+		
 		createConfig();
 		verifyConfigVersion();
 		loadConfig();
 		
+		langFile = new LanguageFile(this);
+		if(!langFile.loadLanguageFile()) {
+			this.getPluginLoader().disablePlugin(this);
+			return;
+		}
+		
+		messageParser = new MessageChatStringParser(this);
 		
 		manager = new PlaceItemsManager(this);
 		Bukkit.getPluginManager().registerEvents(new PlaceItemsEvents(this, manager, versionHandler), this);
@@ -56,7 +71,11 @@ public class PlaceItemsMain extends JavaPlugin{
 		if(PlaceItemsConfig.isPlotSquaredClear()) {
 			if(Bukkit.getPluginManager().isPluginEnabled("PlotSquared")) {
 				getLogger().info("PlotSquared detected, enabling features!");
-				Bukkit.getPluginManager().registerEvents(new PlotClearEventListener(this, manager), this);
+				if(!versionHandler.isLegacy()) {
+					Bukkit.getPluginManager().registerEvents(new PlotClearEventListener(this, manager), this);
+				}else {
+					Bukkit.getPluginManager().registerEvents(new LegacyPlotClearEventListener(this, manager), this);
+				}
 			}
 		}
 		
@@ -68,7 +87,6 @@ public class PlaceItemsMain extends JavaPlugin{
 		if(PlaceItemsConfig.isbStats()) {
 			enablebStats();
 		}
-		
 	}
 	
 	@Override
@@ -127,6 +145,7 @@ public class PlaceItemsMain extends JavaPlugin{
 	}
 	
 	private void loadConfig(){
+		PlaceItemsConfig.setLanguageFile(getConfig().getString("languageFile", "plugin_msgs_en.yml"));
 		PlaceItemsConfig.setUseLocationAutoSave(getConfig().getBoolean("useLocationAutoSave", true));
 		PlaceItemsConfig.setLocationAutoSaveTime(getConfig().getInt("locationAutoSaveTime", 1));
 		PlaceItemsConfig.setDefaultPlaceCap(getConfig().getInt("defaultPlaceCap", 10));
@@ -255,6 +274,18 @@ public class PlaceItemsMain extends JavaPlugin{
 			    getLogger().info("Something went wrong creating the new config file!");
 			 }  
 		}
+	}
+
+	public MessageChatStringParser getMessageParser() {
+		return messageParser;
+	}
+
+	public LanguageFile getLangFile() {
+		return langFile;
+	}
+	
+	public String getLangString(String data) {
+		return langFile.getLangFileData().getString(data, "Error!");
 	}
 	
 	

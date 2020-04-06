@@ -3,7 +3,6 @@ package me.Allogeneous.PlaceItemsOnGroundRebuilt;
 import java.util.Collection;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -51,8 +51,13 @@ public class PlaceItemsEvents implements Listener{
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e){
-		manager.makeNewPlayerFile(e.getPlayer());
-		manager.updateUsername(e.getPlayer());
+		new Thread() {
+			@Override 
+			public void run() {
+				manager.makeNewPlayerFile(e.getPlayer());
+				manager.updateUsername(e.getPlayer());
+			}
+		}.start();
 	}
 	
 	@EventHandler
@@ -79,7 +84,7 @@ public class PlaceItemsEvents implements Listener{
 		if(PlaceItemsConfig.isStrictCompatibilityMode()) {
 			if(p.getInventory().getItemInMainHand().hasItemMeta()) {
 				if(p.getInventory().getItemInMainHand().getItemMeta().hasLore() || p.getInventory().getItemInMainHand().getItemMeta().hasDisplayName()) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Strict compatibilty mode is running! Blocks and items must not have custom names or lore!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("strictCombatibilityPlacementBlock"), plugin.getLangString("pluginTag"), p.getName()));
 					return;
 				}
 			}
@@ -111,24 +116,24 @@ public class PlaceItemsEvents implements Listener{
 		switch(e.getBlockFace().toString()) {
 		case "UP":
 			if(!PlaceItemsConfig.isAllowTopPlacing()) {
-				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the top of blocks has been disabled!");
+				p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("topPlacingDisabled"), plugin.getLangString("pluginTag"), p.getName()));
 				return;
 			}
 			if(!p.hasPermission("placeitems.place")) {
 				if(!p.hasPermission("placeitems.place.top")) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the top of blocks!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("topPlacingNoPermission"), plugin.getLangString("pluginTag"), p.getName()));
 					return;
 				}
 			}
 			break;
 		case "DOWN":
 			if(!PlaceItemsConfig.isAllowBottomPlacing()) {
-				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the bottom of blocks has been disabled!");
+				p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("bottomPlacingDisabled"), plugin.getLangString("pluginTag"), p.getName()));
 				return;
 			}
 			if(!p.hasPermission("placeitems.place")) {
 				if(!p.hasPermission("placeitems.place.bottom")) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the bottom of blocks!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("bottomPlacingNoPermission"), plugin.getLangString("pluginTag"), p.getName()));
 					return;
 				}
 			}
@@ -138,18 +143,18 @@ public class PlaceItemsEvents implements Listener{
 		case "WEST":
 		case "EAST":
 			if(!PlaceItemsConfig.isAllowSidePlacing()) {
-				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Placing items on the sides of blocks has been disabled!");
+				p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("sidePlacingDisabled"), plugin.getLangString("pluginTag"), p.getName()));
 				return;
 			}
 			if(!p.hasPermission("placeitems.place")) {
 				if(!p.hasPermission("placeitems.place.sides")) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to place items on the sides of blocks!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("sidePlacingNoPermission"), plugin.getLangString("pluginTag"), p.getName()));
 					return;
 				}
 			}
 			break;
 		default:
-			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "Error: Unknown blockface!");
+			p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("unknownBlockFace"), plugin.getLangString("pluginTag"), p.getName()));
 			e.setCancelled(true);
 			return;
 		}
@@ -157,28 +162,28 @@ public class PlaceItemsEvents implements Listener{
 
 
 		if(PlaceItemsUtils.isBlacklisted(p.getInventory().getItemInMainHand().getType(), e.getBlockFace().toString())) {
-			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place " + ChatColor.YELLOW + p.getInventory().getItemInMainHand().getType() + ChatColor.RED + "!");
+			p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("blacklistedItem"), plugin.getLangString("pluginTag"), p.getName(), p.getInventory().getItemInMainHand()));
 			e.setCancelled(true);
 			return;
 		}
 
 
 		if(manager.containsPropWithPhysicalBlockFace(e.getClickedBlock().getLocation(), e.getBlockFace())){
-			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place more than one item on one side of a block!");
+			p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("blockFaceTaken"), plugin.getLangString("pluginTag"), p.getName()));
 			e.setCancelled(true);
 			return;
 		}
 
 
 		if(!isValidPlace(e.getClickedBlock().getType(), e.getBlockFace())) {
-			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
+			p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("invalidBlock"), plugin.getLangString("pluginTag"), p.getName()));
 			e.setCancelled(true);
 			return;
 		}
 
 		if(PlaceItemsUtils.isSlab(e.getClickedBlock().getType())) {
 			if(!versionHandler.isValidSlab(e.getClickedBlock(), e.getBlockFace().toString())) {
-				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item on that block!");
+				p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("invalidSlab"), plugin.getLangString("pluginTag"), p.getName()));
 				e.setCancelled(true);
 				return;
 			}
@@ -239,7 +244,7 @@ public class PlaceItemsEvents implements Listener{
 						return;
 					}
 					if(!p.hasPermission("placeitems.take")) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to take items!");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("takeItemsNoPermission"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					
@@ -284,7 +289,7 @@ public class PlaceItemsEvents implements Listener{
 			Player p = e.getPlayer();
 			if(!p.hasPermission("placeitems.take")) {
 				e.setCancelled(true);
-				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.DARK_RED + "You do not have permission to take items!");
+				p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("takeItemsNoPermission"), plugin.getLangString("pluginTag"), p.getName()));
 				return;
 			}
 			
@@ -336,18 +341,33 @@ public class PlaceItemsEvents implements Listener{
 		}
 	}
 	
+	@EventHandler
+	public void onPistonPullPlacedItem(BlockPistonRetractEvent e) {
+		if(PlaceItemsUtils.placedItemsAreInRadius(e.getBlock().getLocation(), manager, 2)) {
+			e.setCancelled(true);
+			return;
+		}
+		
+		for(Block b : e.getBlocks()) {
+			if(PlaceItemsUtils.placedItemsAreInRadius(b.getLocation(), manager, 2)) {
+				e.setCancelled(true);
+				return;
+			}
+		}
+	}
+	
 	private void longPlacementCaseMethod(Player p, Block clickedBlock, BlockFace blockFace) {
 			if(blockFace == BlockFace.UP) {
 				Location check = clickedBlock.getLocation().add(0, 1, 0);
 				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placeInsideAnotherBlockError"), plugin.getLangString("pluginTag"), p.getName(), check.getBlock()));
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					if(PlaceItemsSpecialCases.isSpecialCases2(p.getInventory().getItemInMainHand().getType())) {
 						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.6, 0.5), blockFace);
 						if(a == null) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -356,7 +376,7 @@ public class PlaceItemsEvents implements Listener{
 					}else {
 						ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -0.35, 0.5), blockFace);
 						if(a == null) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -367,7 +387,7 @@ public class PlaceItemsEvents implements Listener{
 					if(PlaceItemsSpecialCases.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
 						ArmorStand a = createArmorStand(BlockTopPositioningCases.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
 						if(a == null) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -376,7 +396,7 @@ public class PlaceItemsEvents implements Listener{
 					}else {
 						ArmorStand a = createArmorStand(BlockTopPositioningCases.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
 						if(a == null) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -389,13 +409,13 @@ public class PlaceItemsEvents implements Listener{
 			}else if(blockFace == BlockFace.DOWN) {
 				Location check = clickedBlock.getLocation().add(0, -1, 0);
 				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placeInsideAnotherBlockError"), plugin.getLangString("pluginTag"), p.getName(), check.getBlock()));
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(clickedBlock.getLocation().add(0.5, -2.0, 0.5), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -405,7 +425,7 @@ public class PlaceItemsEvents implements Listener{
 					if(PlaceItemsSpecialCases.isSpecialCases1(p.getInventory().getItemInMainHand().getType())) {
 						ArmorStand a = createArmorStand(BlockBottomPositioningCases.getBestArmorStandItemRelitiveToLocationSpecialCases1(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
 						if(a == null) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -414,7 +434,7 @@ public class PlaceItemsEvents implements Listener{
 					}else {
 						ArmorStand a = createArmorStand(BlockBottomPositioningCases.getBestArmorStandItemRelitiveToLocation(PlaceItemsUtils.getCardinalDirection(p.getLocation()), clickedBlock.getLocation()), blockFace);
 						if(a == null) {
-							p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+							p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 							return;
 						}
 						a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -427,13 +447,13 @@ public class PlaceItemsEvents implements Listener{
 			}else if(blockFace == BlockFace.NORTH) {
 				Location check = clickedBlock.getLocation().add(0, 0, -1);
 				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placeInsideAnotherBlockError"), plugin.getLangString("pluginTag"), p.getName(), check.getBlock()));
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -442,7 +462,7 @@ public class PlaceItemsEvents implements Listener{
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -454,13 +474,13 @@ public class PlaceItemsEvents implements Listener{
 			}else if(blockFace == BlockFace.SOUTH) {
 				Location check = clickedBlock.getLocation().add(0, 0, 1);
 				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placeInsideAnotherBlockError"), plugin.getLangString("pluginTag"), p.getName(), check.getBlock()));
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
@@ -469,7 +489,7 @@ public class PlaceItemsEvents implements Listener{
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHeadPose(BlockSidePositioningCases.getBestArmorHeadPosRelitiveToRotationNumber(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()));
@@ -481,13 +501,13 @@ public class PlaceItemsEvents implements Listener{
 			}else if(blockFace == BlockFace.WEST) {
 				Location check = clickedBlock.getLocation().add(-1, 0, 0);
 				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placeInsideAnotherBlockError"), plugin.getLangString("pluginTag"), p.getName(), check.getBlock()));
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -496,7 +516,7 @@ public class PlaceItemsEvents implements Listener{
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -508,13 +528,13 @@ public class PlaceItemsEvents implements Listener{
 			}else if(blockFace == BlockFace.EAST) {
 				Location check = clickedBlock.getLocation().add(1, 0, 0);
 				if(!PlaceItemsUtils.isPlaceIn(check.getBlock().getType())) {
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place an item in " + ChatColor.YELLOW + check.getBlock().getType() + ChatColor.RED + "!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placeInsideAnotherBlockError"), plugin.getLangString("pluginTag"), p.getName(), check.getBlock()));
 					return;
 				}
 				if(isBlockey(p.getInventory().getItemInMainHand())){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberBlock(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -523,7 +543,7 @@ public class PlaceItemsEvents implements Listener{
 				}else if(versionHandler.isItemey((p.getInventory().getItemInMainHand()))){
 					ArmorStand a = createArmorStand(BlockSidePositioningCases.getBestArmorStandRelitiveToRotationNumberItem(blockFace, manager.getSideRotation(p), clickedBlock.getLocation()), blockFace);
 					if(a == null) {
-						p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "That orientation position is already taken! Try repositioning the item.");
+						p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("orientationTaken"), plugin.getLangString("pluginTag"), p.getName()));
 						return;
 					}
 					a.setHelmet(new ItemStack(p.getInventory().getItemInMainHand()));
@@ -574,7 +594,7 @@ public class PlaceItemsEvents implements Listener{
 	
 	private boolean handlePermissionCheck(Player p) {
 		if(PlaceItemsConfig.getBlacklistedWorlds().contains(p.getWorld().getName()) && !p.hasPermission("placeitems.worldblacklistbypass")) {
-			p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You cannot place items in this world!");
+			p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("worldNoPermission"), plugin.getLangString("pluginTag"), p.getName()));
 			return false;
 		}
 		for(PermissionAttachmentInfo attachmentInfo : p.getEffectivePermissions()) {
@@ -587,11 +607,11 @@ public class PlaceItemsEvents implements Listener{
 		    		  try {
 		    			  maxPlacements = Integer.parseInt(value);
 		    		  }catch(Exception e) {
-		    			  p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have an error with your permission, using default settings!");
+		    			  p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placementCapPermissionReadError"), plugin.getLangString("pluginTag"), p.getName()));
 		    			  break;
 		    		  }
 		    		if(maxPlacements != PlaceItemsManager.UNLIMITED && maxPlacements <= manager.getPlacements(p)){
-		  				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+		    			p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placementCapReached"), plugin.getLangString("pluginTag"), p.getName()));
 		  				return false;
 		  			}else {
 		  				return true;
@@ -604,13 +624,13 @@ public class PlaceItemsEvents implements Listener{
 		
 		if(manager.getHasCustomPlaceCap(p)) {
 			if(manager.getMaxPlacements(p) != PlaceItemsManager.UNLIMITED && manager.getMaxPlacements(p) <= manager.getPlacements(p)){
-				p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+				p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placementCapReached"), plugin.getLangString("pluginTag"), p.getName()));
 				return false;
 			}
 		}else {
 			if(PlaceItemsConfig.getDefaultPlaceCap() != PlaceItemsManager.UNLIMITED) {
 				if(PlaceItemsConfig.getDefaultPlaceCap() <= manager.getPlacements(p)){
-					p.sendMessage(ChatColor.BLUE + "[PlaceItems] " + ChatColor.RED + "You have reached your placement cap!");
+					p.sendMessage(plugin.getMessageParser().parse(plugin.getLangString("placementCapReached"), plugin.getLangString("pluginTag"), p.getName()));
 					return false;
 				}
 			}
