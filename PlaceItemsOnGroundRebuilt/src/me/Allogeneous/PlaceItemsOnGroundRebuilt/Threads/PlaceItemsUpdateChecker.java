@@ -24,7 +24,7 @@ public class PlaceItemsUpdateChecker extends BukkitRunnable{
 		URL urlVersion;
 		URLConnection urlConnection;
 		try {
-			urlVersion = new URL("https://api.spigotmc.org/legacy/update.php?resource=67410");
+			urlVersion = new URL("https://api.spigotmc.org/legacy/update.php?resource=67410/");
 			urlConnection = urlVersion.openConnection();
 			BufferedReader versionReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 			String siteVersion = versionReader.readLine();

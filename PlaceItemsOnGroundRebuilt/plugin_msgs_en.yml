@@ -145,6 +145,11 @@ placeToggledError: "<tag> §cValue must be true or false!"
 #Allowed placeholders: <targetPlayerName>, <dataFileRightClickPlaceToggled>
 rightClickPickupToggledSet: "<tag> §bThe value §crightClickPickupToggled §bhas been set to §a<dataFileRightClickPlaceToggled> §bfor §a<targetPlayerName>§b."
 rightClickPickupToggledError: "<tag> §cValue must be true or false!"
+syncStart: "<tag> §bSyncing Locations.dat placement data with player file placement data... this may take some time."
+syncNoFile: "<tag> §cThat player does not have a file!"
+#Allowed placeholders: <syncFromCount>, <syncToCount>
+syncChange: "<tag> §aData is synced! Player placements went from §c<syncFromCount> §ato §e<syncToCount>§a."
+syncNoChange: "<tag> §bNo changes were made!"
 
 #Events Section
 
@@ -170,4 +175,4 @@ placementCapPermissionReadError: "<tag> §cYou have an error with your permissio
 placementCapReached: "<tag> §cYou have reached your placement cap!"
 
 #DO NOT TOUCH
-version: 1
+version: 2

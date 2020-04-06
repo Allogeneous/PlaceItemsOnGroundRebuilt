@@ -1,4 +1,4 @@
-package me.Allogeneous.PlaceItems.Lang;
+package me.Allogeneous.PlaceItemsOnGroundRebuilt.Lang;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -21,12 +21,12 @@ public class LanguageFile {
 	
 	private ArrayList<String> generalTags = new ArrayList<>((List<String>) Arrays.asList(new String[] {"<playerName>", "<tag>"}));
 	private ArrayList<String> specificTags = new ArrayList<>((List<String>) Arrays.asList(new String[] {"<dataFileUuid>", "<dataFileName>", "<dataFilePlaceCap>", "<dataFileHasCustomPlaceCap>", "<dataFileAmountPlaced>", "<dataFilePlaceToggled>",
-			"<dataFileRightClickPlaceToggled>", "<clickedBlocked>", "<purgeRadius>", "<targetPlayerName>", "<purgeLocationCount>", "<purgeArmorStandCount>", "<itemInHand>","<sideRotation>"}));
+			"<dataFileRightClickPlaceToggled>", "<clickedBlocked>", "<purgeRadius>", "<targetPlayerName>", "<purgeLocationCount>", "<purgeArmorStandCount>", "<itemInHand>", "<sideRotation>", "<syncToCount>", "<syncFromCount>"}));
 	
 	private FileConfiguration langFileConfig;
 	private File langFile;
 	
-	private int langVersion = 1;
+	private int langVersion = 2;
 	
 	public LanguageFile(PlaceItemsMain plugin) {
 		this.plugin = plugin;
@@ -176,5 +176,13 @@ public class LanguageFile {
 	
 	public String getSideRotation() {
 		return specificTags.get(13);
+	}
+	
+	public String getSyncToCount() {
+		return specificTags.get(14);
+	}
+	
+	public String getSyncFromCount() {
+		return specificTags.get(15);
 	}
 }

@@ -9,10 +9,10 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.Allogeneous.PlaceItems.Lang.LanguageFile;
-import me.Allogeneous.PlaceItems.Lang.MessageChatStringParser;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsLocationAutoSaver;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Files.PlaceItemsManager;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Lang.LanguageFile;
+import me.Allogeneous.PlaceItemsOnGroundRebuilt.Lang.MessageChatStringParser;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlotSquared.LegacyPlotClearEventListener;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.PlotSquared.PlotClearEventListener;
 import me.Allogeneous.PlaceItemsOnGroundRebuilt.Threads.PlaceItemsUpdateChecker;

@@ -353,7 +353,7 @@ public class PlaceItemsCommands implements CommandExecutor{
 							if(args[1].equalsIgnoreCase("sync")) {
 								Player target = Bukkit.getPlayer(args[2]);
 								if(target != null) {
-									PlaceItemsDataSyncer pids = new PlaceItemsDataSyncer(sender, target, manager);
+									PlaceItemsDataSyncer pids = new PlaceItemsDataSyncer(plugin, sender, target, manager);
 									pids.runTaskAsynchronously(plugin);
 									return true;
 								}else {

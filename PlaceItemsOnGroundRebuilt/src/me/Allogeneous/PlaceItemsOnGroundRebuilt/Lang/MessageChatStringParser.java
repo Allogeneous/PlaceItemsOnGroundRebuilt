@@ -1,4 +1,4 @@
-package me.Allogeneous.PlaceItems.Lang;
+package me.Allogeneous.PlaceItemsOnGroundRebuilt.Lang;
 
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
@@ -102,5 +102,9 @@ public class MessageChatStringParser {
 	
 	public String parse(String toParse, String tag, String playerName, Block block) {
 		return parse(toParse, tag, playerName).replace(plugin.getLangFile().getClickedBlock(), block.getType().toString());
+	}
+	
+	public String parse(String toParse, String tag, String playerName, int syncToCount, int syncFromCount, boolean data) {
+		return parse(toParse, tag, playerName).replace(plugin.getLangFile().getSyncFromCount(), Integer.toString(syncFromCount)).replace(plugin.getLangFile().getSyncToCount(), Integer.toString(syncToCount));
 	}
 }
