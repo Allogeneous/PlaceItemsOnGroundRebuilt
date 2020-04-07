@@ -2,9 +2,7 @@
 #GENERAL#
 #########
 
-#Select your language file from the list of files provided below.
-#Current languages: English
-#Valid file names are: plugin_msgs_en.yml
+#Language files can be found at the plugin's website, to use a different language, download the desired file and put it in the plugin data folder!
 languageFile: "plugin_msgs_en.yml"
 #Writes new placed item location data to a file every x minutes
 useLocationAutoSave: true

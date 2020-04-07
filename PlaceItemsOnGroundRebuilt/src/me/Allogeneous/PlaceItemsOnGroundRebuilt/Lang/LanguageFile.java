@@ -1,9 +1,10 @@
 package me.Allogeneous.PlaceItemsOnGroundRebuilt.Lang;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -91,8 +92,10 @@ public class LanguageFile {
 	    if (langFile == null) {
 	        langFile = new File(plugin.getDataFolder(), PlaceItemsConfig.getLanguageFile());
 	    }
-	    if (!langFile.exists()) {            
-	         plugin.saveResource("plugin_msgs_en.yml", false);
+	    if (!langFile.exists()) { 
+	    	 if(PlaceItemsConfig.getLanguageFile().equals("plugin_msgs_en.yml")) {
+	    		 plugin.saveResource("plugin_msgs_en.yml", false);
+	    	 }
 	     }
 	}
 	
@@ -101,12 +104,16 @@ public class LanguageFile {
 	    	langFile = new File(plugin.getDataFolder(), PlaceItemsConfig.getLanguageFile());
 	    }
 	    langFileConfig = YamlConfiguration.loadConfiguration(langFile);
-
 	    Reader defConfigStream = null;
 		try {
-			defConfigStream = new InputStreamReader(plugin.getResource(PlaceItemsConfig.getLanguageFile()), "UTF8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			 if(PlaceItemsConfig.getLanguageFile().equals("plugin_msgs_en.yml")) {
+				 defConfigStream = new InputStreamReader(plugin.getResource(PlaceItemsConfig.getLanguageFile()), "UTF8");
+			 }else {
+				 InputStream inputStream = new FileInputStream(plugin.getDataFolder() + File.separator + PlaceItemsConfig.getLanguageFile());
+				 defConfigStream = new InputStreamReader(inputStream, "UTF8");
+			 }
+		} catch (Exception e) {
+			plugin.getLogger().warning("Error reading lang file!");
 		}
 	    if (defConfigStream != null) {
 	        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);

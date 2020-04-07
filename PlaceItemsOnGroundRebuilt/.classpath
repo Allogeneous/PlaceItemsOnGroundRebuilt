@@ -7,8 +7,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="D:/Junk/mcMMO.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joshua/Desktop/New Spigot/BuildTools/spigot-1.15.2.jar"/>
 	<classpathentry kind="lib" path="D:/Browser Downloads/PlotSquared-Bukkit-20.03.28-71943e6-796.jar"/>
 	<classpathentry kind="lib" path="D:/Browser Downloads/PlotSquared-Bukkit-4.453.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Joshua/Desktop/New Spigot/BuildTools/spigot-1.15.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -32,7 +32,7 @@
 #These placeholders can only be used when specificly stated in a comment above the message
 #<dataFileUuid>, <dataFileName>, <dataFilePlaceCap>, <dataFileHasCustomPlaceCap>, <dataFileAmountPlaced>, <dataFilePlaceToggled>,
 #<dataFileRightClickPlaceToggled>, <clickedBlocked>, <purgeRadius>, <targetPlayerName>, <purgeLocationCount>, <purgeArmorStandCount>, <itemInHand>,
-#<sideRotation>
+#<sideRotation>, <syncFromCount>, <syncToCount>
 
 #This will appear when the <tag> placeholder is used in a message.
 pluginTag: "§9[PlaceItems]§r"
